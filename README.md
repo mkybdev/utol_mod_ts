@@ -1,9 +1,11 @@
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/images/utol_mod_logo.png?raw=true" alt="demo" style="text-align: center;">
+
 # UTOL Mod
 
 UTOL の非公式 Chrome 拡張機能です。
 
 UTOL のさまざまなカスタマイズが可能です。\
-オプションで個々の機能の有効・無効を切り替えることができます。
+オプションで各機能の有効・無効を切り替えることができます。
 
 ## 機能
 
@@ -31,7 +33,7 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 ### 時間割ページで適用される機能
 
-<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/add_schedule.gif?raw=true" alt="demo" loop=infinite>
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/notice_fold.gif?raw=true" alt="demo" loop=infinite>
 
 - **「重要なお知らせ」と「緊急のお知らせ」を自動的に折りたたむ**
 
@@ -43,7 +45,7 @@ UTOL のさまざまなカスタマイズが可能です。\
 
   - 提出済みの課題を非表示にすることもできます。
 
-<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/notice_fold.gif?raw=true" alt="demo" loop=infinite>
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/add_schedule.gif?raw=true" alt="demo" loop=infinite>
 
 - **時間割に任意の予定を追加**
 
@@ -56,6 +58,14 @@ UTOL のさまざまなカスタマイズが可能です。\
 - **「集中コース等」の一覧から「東大生のためのワークルール入門」を削除**
 
   - 多くの学生にとって不要な情報である「東大生のためのワークルール入門」の項目が削除されます。
+
+## 各種設定
+
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/options.gif?raw=true" alt="demo" loop=infinite>
+
+- Chrome の拡張機能一覧からオプション画面にアクセスできます。
+
+- 各機能の有効／無効を選択できます。
 
 ## インストール方法
 
@@ -78,6 +88,11 @@ UTOL のさまざまなカスタマイズが可能です。\
 - この拡張機能は非公式のものであり、UTOL の開発者とは一切関係ありません。
 
   - そのため、UTOL の仕様変更により正常に動作しなくなったり、開発者によって利用が禁止される可能性があります。
+
   - あくまで自己責任でご利用ください。
 
 - この拡張機能の改良は歓迎しますが、無許可での再配布はご遠慮ください。
+
+## Powered By
+
+TypeScript , [Darkmode.js](https://github.com/sandoche/Darkmode.js) ,
