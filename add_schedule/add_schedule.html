@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>予定を追加</title>
+    <meta charset="utf-8" />
+    <script type="module" crossorigin src="/add_schedule.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="stylesheet" crossorigin href="/assets/add_schedule-Cvo4-5pW.css">
+  </head>
+  <body>
+    <div id="courceSearch" class="block clearfix">
+      <div class="block-title block-cube course-search-color">
+        <h1 class="block-title-txt cube-block-title-txt">予定を登録</h1>
+      </div>
+
+      <div class="block-contents">
+        <div class="contents-detail contents-vertical">
+          <div class="contents-header contents-header-txt">
+            <label class="bold-txt" for="scheduleTitle">タイトル</label>
+          </div>
+
+          <div class="contents-input-area">
+            <input
+              type="text"
+              id="scheduleTitle"
+              class="input input-box"
+              name="scheduleTitle"
+              value=""
+              maxlength="50"
+            />
+          </div>
+        </div>
+
+        <div class="contents-detail contents-vertical">
+          <div class="contents-header contents-header-txt">
+            <label class="bold-txt" for="scheduleContent">内容</label>
+          </div>
+
+          <div class="contents-input-area">
+            <textarea
+              id="scheduleContent"
+              class="input input-box"
+              name="scheduleContent"
+              rows="5"
+              cols="50"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="contents-detail contents-vertical">
+          <div class="contents-header contents-header-txt">
+            <label class="bold-txt" for="scheduleContent">年度・時期</label>
+          </div>
+
+          <div class="contents-input-area contents-question-template-area">
+            <div class="input-select-box-area width-quarter">
+              <select
+                class="input input-select-box form-control"
+                name="scheduleYear"
+                title="年度を選択"
+              ></select>
+            </div>
+            <div class="input-select-box-area width-quarter margin-txt-left">
+              <select
+                class="input input-select-box form-control"
+                name="schedulePeriod"
+                title="時期を選択"
+              >
+                <option value="S">S</option>
+                <option value="S1">S1</option>
+                <option value="S2">S2</option>
+                <option value="A">A</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="W">W</option>
+                <option value="X">通年</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="contents-detail contents-vertical">
+          <div class="contents-header contents-header-txt">
+            <label class="bold-txt">曜日・時限</label>
+          </div>
+
+          <div class="contents-input-area contents-question-template-area">
+            <div class="input-select-box-area width-quarter">
+              <select
+                class="input input-select-box form-control"
+                name="scheduleDay"
+                title="曜日を選択"
+              >
+                <option value="1">月曜日</option>
+                <option value="2">火曜日</option>
+                <option value="3">水曜日</option>
+                <option value="4">木曜日</option>
+                <option value="5">金曜日</option>
+                <option value="6">土曜日</option>
+              </select>
+            </div>
+            <div class="input-select-box-area width-quarter margin-txt-left">
+              <select
+                class="input input-select-box form-control"
+                name="scheduleTime"
+                title="時限を選択"
+              >
+                <option value="1">１時限</option>
+                <option value="2">２時限</option>
+                <option value="3">３時限</option>
+                <option value="4">４時限</option>
+                <option value="5">５時限</option>
+                <option value="6">６時限</option>
+                <option value="7">７時限</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="contents-detail contents-vertical">
+          <div class="btn-wrapper">
+            <div class="btn-right">
+              <input
+                type="button"
+                class="under-btn btn-txt btn-color cancel-btn"
+                value="キャンセル"
+              />
+            </div>
+            <div class="btn-right">
+              <input
+                type="button"
+                class="under-btn btn-txt btn-color add-btn"
+                value="追加"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
