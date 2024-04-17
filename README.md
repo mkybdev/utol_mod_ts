@@ -82,11 +82,11 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 簡単なインストール方法は以下の通りです。
 
-1. 上記の ["Download (ZIP)" リンク](https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip) から ZIP ファイルをダウンロードします。\
+1. 上記の ["Download (ZIP)" リンク](https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip) から ZIP ファイルをダウンロードします。
 
 2. ダウンロードした ZIP ファイルを解凍します。
 
-3. Chrome の拡張機能ページ（[`chrome://extensions/`](chrome://extensions/)）を開きます。
+3. Chrome の拡張機能ページ ( <a href="chrome://extensions/">chrome://extensions/</a> ) を開きます。
 
 4. ページ右上の「デベロッパーモード」を有効にします。
 
