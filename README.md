@@ -1,4 +1,9 @@
-<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/images/utol_mod_logo.png?raw=true" alt="demo" style="text-align: center;">
+<div align="center" style="margin: 20px;">
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/images/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
+
+<a href="https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
+
+</div>
 
 # UTOL Mod
 
@@ -33,7 +38,9 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 ### 時間割ページで適用される機能
 
+<div align="center" style="margin: 30px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/notice_fold.gif?raw=true" alt="demo" loop=infinite>
+</div>
 
 - **「重要なお知らせ」と「緊急のお知らせ」を自動的に折りたたむ**
 
@@ -45,7 +52,9 @@ UTOL のさまざまなカスタマイズが可能です。\
 
   - 提出済みの課題を非表示にすることもできます。
 
+<div align="center" style="margin: 30px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/add_schedule.gif?raw=true" alt="demo" loop=infinite>
+</div>
 
 - **時間割に任意の予定を追加**
 
@@ -61,7 +70,9 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 ## 各種設定
 
-<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/options.gif?raw=true" alt="demo" loop=infinite>
+<div align="center" style="margin: 20px;">
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/options.gif?raw=true" alt="demo" loop=infinite style="width: 50%;">
+</div>
 
 - Chrome の拡張機能一覧からオプション画面にアクセスできます。
 
@@ -71,11 +82,11 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 簡単なインストール方法は以下の通りです。
 
-1. このページ上部の「Code」ボタンをクリックし、「Download ZIP」ボタンをクリックして ZIP ファイルをダウンロードします。
+1. 上記の ["Download (ZIP)" リンク](https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip) から ZIP ファイルをダウンロードします。\
 
 2. ダウンロードした ZIP ファイルを解凍します。
 
-3. Chrome の拡張機能ページ（`chrome://extensions/`）を開きます。
+3. Chrome の拡張機能ページ（[`chrome://extensions/`](chrome://extensions/)）を開きます。
 
 4. ページ右上の「デベロッパーモード」を有効にします。
 
@@ -95,4 +106,4 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 ## Powered By
 
-TypeScript , [Darkmode.js](https://github.com/sandoche/Darkmode.js) ,
+TypeScript, Vite, [Darkmode.js](https://github.com/sandoche/Darkmode.js), [ICOOON MONO](https://icooon-mono.com/)

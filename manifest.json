@@ -1,6 +1,6 @@
 {
   "name": "UTOL Mod",
-  "description": "UTOLの非公式拡張機能です。",
+  "description": "UTOLの非公式拡張機能です。（https://github.com/mkybdev/utol_mod_ts）",
   "version": "1.0",
   "manifest_version": 3,
   "content_scripts": [
@@ -23,5 +23,10 @@
     }
   ],
   "permissions": ["storage"],
-  "action": { "default_popup": "options/options.html" }
+  "action": { "default_popup": "options/options.html" },
+  "icons": {
+    "16": "icon/16.png",
+    "48": "icon/48.png",
+    "128": "icon/128.png"
+  }
 }
