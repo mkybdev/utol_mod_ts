@@ -1,7 +1,8 @@
 # UTOL Mod
 
 UTOL の非公式 Chrome 拡張機能です。
-UTOL のさまざまなカスタマイズが可能です。
+
+UTOL のさまざまなカスタマイズが可能です。\
 オプションで個々の機能の有効・無効を切り替えることができます。
 
 ## 機能
@@ -30,7 +31,7 @@ UTOL のさまざまなカスタマイズが可能です。
 
 ### 時間割ページで適用される機能
 
-<!-- <img src="https://github.com/mkybdev/utol_mod/blob/main/misc/utol_mod_demo_infinite.gif?raw=true" alt="demo" loop=infinite> -->
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/add_schedule.gif?raw=true" alt="demo" loop=infinite>
 
 - **「重要なお知らせ」と「緊急のお知らせ」を自動的に折りたたむ**
 
@@ -41,6 +42,8 @@ UTOL のさまざまなカスタマイズが可能です。
   - サイドメニューから「提出状況一覧」にアクセスしなくても、時間割ページから直接課題の提出状況を確認できます。
 
   - 提出済みの課題を非表示にすることもできます。
+
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/notice_fold.gif?raw=true" alt="demo" loop=infinite>
 
 - **時間割に任意の予定を追加**
 
