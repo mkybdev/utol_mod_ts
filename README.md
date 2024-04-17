@@ -86,7 +86,7 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 2. ダウンロードした ZIP ファイルを解凍します。
 
-3. Chrome の拡張機能ページ ( <a href="chrome://extensions/">chrome://extensions/</a> ) を開きます。
+3. Chrome の拡張機能ページ（[`chrome://extensions/`](chrome://extensions/)）を開きます。
 
 4. ページ右上の「デベロッパーモード」を有効にします。
 
