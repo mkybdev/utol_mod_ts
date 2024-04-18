@@ -1,5 +1,5 @@
 <div align="center" style="margin: 20px;">
-<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/images/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
+<img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
 <a href="https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
 
