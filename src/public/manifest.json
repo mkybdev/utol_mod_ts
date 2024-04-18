@@ -1,0 +1,33 @@
+{
+  "name": "UTOL Mod",
+  "description": "UTOLの非公式拡張機能です。（https://github.com/mkybdev/utol_mod_ts）",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": [
+        "https://utol.ecc.u-tokyo.ac.jp/common/*",
+        "https://utol.ecc.u-tokyo.ac.jp/course/*",
+        "https://utol.ecc.u-tokyo.ac.jp/lms/*",
+        "https://utol.ecc.u-tokyo.ac.jp/login"
+      ],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*", "add_schedule/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "permissions": ["storage"],
+  "action": { "default_popup": "options/options.html" },
+  "icons": {
+    "16": "icon/16.png",
+    "48": "icon/48.png",
+    "128": "icon/128.png"
+  }
+}
