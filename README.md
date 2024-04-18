@@ -1,7 +1,7 @@
 <div align="center" style="margin: 20px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
-<a href="https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
+<a href="https://github.com/mkybdev/utol_mod_ts/releases/download/v1.0/utol_mod_v1.0.zip" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
 
 </div>
 
@@ -111,6 +111,14 @@ UTOL のさまざまなカスタマイズが可能です。\
   - あくまで自己責任でご利用ください。
 
 - この拡張機能の改良は歓迎しますが、無許可での再配布はご遠慮ください。
+
+### 開発手順
+
+```bash
+# After cloning this repository
+npm install
+npm run build # Generating "dist" directory: the extension file
+```
 
 ## Powered By
 
