@@ -2,24 +2,22 @@
 import "./options.css";
 
 window.addEventListener("load", () => {
-  let options: object;
   chrome.storage.local.get("options", (raw) => {
-    options = raw.options;
-    if (options === undefined) {
-      options = {
-        sideMenu: "0",
-        timetableButton: "0",
-        headerName: "0",
-        themeButton: "0",
-        noticeFold: "0",
-        taskList: "0",
-        taskListSubmitted: "0",
-        addSchedule: "0",
-        deleteWorkRule: "0",
-        autoLogin: "1",
-      };
-      chrome.storage.local.set({ options: options });
-    }
+    const initialOptions = {
+      sideMenu: "0",
+      pdfDialog: "0",
+      timetableButton: "0",
+      headerName: "0",
+      themeButton: "0",
+      noticeFold: "0",
+      taskList: "0",
+      taskListSubmitted: "0",
+      addSchedule: "0",
+      deleteWorkRule: "0",
+      autoLogin: "1",
+    };
+    const options = { ...initialOptions, ...(raw.options ?? {}) };
+    chrome.storage.local.set({ options: options });
     console.log(options);
 
     const width = screen.width;

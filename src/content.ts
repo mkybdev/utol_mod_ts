@@ -4,22 +4,21 @@ import "./public/style.css";
 import Darkmode from "darkmode-js";
 
 chrome.storage.local.get("options", (raw) => {
-  let options = raw.options;
-  if (options === undefined) {
-    options = {
-      sideMenu: "0",
-      timetableButton: "0",
-      headerName: "0",
-      themeButton: "0",
-      noticeFold: "0",
-      taskList: "0",
-      taskListSubmitted: "0",
-      addSchedule: "0",
-      deleteWorkRule: "0",
-      autoLogin: "1",
-    };
-    chrome.storage.local.set({ options: options });
-  }
+  const initialOptions = {
+    sideMenu: "0",
+    pdfDialog: "0",
+    timetableButton: "0",
+    headerName: "0",
+    themeButton: "0",
+    noticeFold: "0",
+    taskList: "0",
+    taskListSubmitted: "0",
+    addSchedule: "0",
+    deleteWorkRule: "0",
+    autoLogin: "1",
+  };
+  const options = { ...initialOptions, ...(raw.options ?? {}) };
+  chrome.storage.local.set({ options: options });
   console.log(options);
 
   if (options.autoLogin == "0" && window.location.pathname.includes("login")) {
@@ -76,22 +75,40 @@ chrome.storage.local.get("options", (raw) => {
       if (!impHeaderFlag) impHeaderLoaded();
       if (!pageTopButtonFlag) pageTopButtonLoaded();
       if (!headerNameFlag) headerNameLoaded();
-      // const allElems = document.querySelectorAll("*");
-      // allElems.forEach((el) => {
-      //   const style = window.getComputedStyle(el);
-      //   const color = style.getPropertyValue("color");
-      //   const bgColor = style.getPropertyValue("background-color");
-      //   if (color != "") {
-      //     // console.log(`color: ${color}`);
-      //     (el as HTMLElement).classList.add("nodark");
-      //   }
-      //   if (bgColor != "") {
-      //     // console.log(`bgColor: ${bgColor}`);
-      //     (el as HTMLElement).classList.add("nodark");
-      //   }
-      // });
+      if (options.pdfDialog == "0") preventPdfDialog();
     }
   };
+
+  function preventPdfDialog() {
+    const files = document.querySelectorAll("*:has(> .link-txt.downloadFile)");
+    if (files == null) return;
+    files.forEach((file) => {
+      const fileNameDiv = file.querySelector(".fileName");
+      const objectNameDiv = file.querySelector(".objectName");
+      if (fileNameDiv != null && objectNameDiv != null) {
+        const fileName = fileNameDiv.textContent;
+        if (!fileName!.includes(".pdf")) return;
+        const oldLink = file.querySelector(".link-txt.downloadFile");
+        const name = oldLink!.textContent;
+        const objectName = objectNameDiv.textContent;
+        const reportId = (
+          document.querySelector('[name="reportId"]') as HTMLInputElement
+        ).value;
+        const idnumber = (
+          document.querySelector('[name="idnumber"]') as HTMLInputElement
+        ).value;
+        const newLink = document.createElement("a");
+        newLink.href = `https://utol.ecc.u-tokyo.ac.jp/lms/course/report/submission_preview/${fileName}?reportId=${reportId}&idnumber=${idnumber}&downloadFileName=${name}&objectName=${objectName}&downloadMode=`;
+        newLink.textContent = name;
+        newLink.target = "_blank";
+        newLink.classList.add("new-pdf-link");
+        file
+          .querySelector(".link-txt.downloadFile")!
+          .classList.add("pdf-link-hide");
+        file.prepend(newLink);
+      }
+    });
+  }
 
   function clearAll() {
     clearInterval(sideMenuInitCheckTimer);
