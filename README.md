@@ -1,7 +1,7 @@
 <div align="center" style="margin: 20px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
-<a href="https://github.com/mkybdev/utol_mod_ts/releases/download/v1.0/utol_mod_v1.0.zip" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
+<a href="https://github.com/mkybdev/utol_mod_ts/releases/download/v1.1/utol_mod_v1.1.zip" id="dlLink" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
 
 </div>
 
@@ -96,7 +96,7 @@ UTOL のさまざまなカスタマイズが可能です。\
 
 簡単なインストール方法は以下の通りです。
 
-1. 上記の ["Download (ZIP)" リンク](https://github.com/mkybdev/utol_mod_ts/archive/refs/heads/main.zip) から ZIP ファイルをダウンロードします。
+1. 上記の <a href="#dlLink">"Download (ZIP)" リンク</a> から ZIP ファイルをダウンロードします。
 
 2. ダウンロードした ZIP ファイルを解凍します。
 
