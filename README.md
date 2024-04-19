@@ -1,7 +1,15 @@
+<style>
+  a.anchor {
+    display: block;
+    padding-top: 200px;
+    margin-top: -200px;
+  }
+</style>
+
 <div align="center" style="margin: 20px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
-<a href="https://github.com/mkybdev/utol_mod_ts/releases/download/v1.1/utol_mod_v1.1.zip" id="dlLink" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
+<a href="https://github.com/mkybdev/utol_mod_ts/releases/download/v1.1/utol_mod_v1.1.zip" id="dlLink" class="anchor" style="font-size: 1.1rem; font-weight: bold;">Download (ZIP)</a>
 
 </div>
 
