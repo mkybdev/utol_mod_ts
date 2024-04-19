@@ -1,11 +1,4 @@
-<style>
-  a.anchor {
-    display: block;
-    padding-top: 200px;
-    margin-top: -200px;
-  }
-</style>
-
+<link href="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/README.css" rel="stylesheet"></link>
 <div align="center" style="margin: 20px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
