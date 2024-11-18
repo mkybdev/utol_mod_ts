@@ -51,31 +51,32 @@ window.addEventListener("load", () => {
   });
 
   document.querySelector(".add-btn")!.addEventListener("click", () => {
+    const title = (document.querySelector("#scheduleTitle") as HTMLInputElement).value;
+    const content = (document.querySelector("#scheduleContent") as HTMLInputElement).value;
+    const year = parseInt(
+      (document.getElementsByName("scheduleYear")[0] as HTMLSelectElement).value
+    );
+    const period = (document.getElementsByName("schedulePeriod")[0] as HTMLSelectElement).value;
+    const day = parseInt(
+      (document.getElementsByName("scheduleDay")[0] as HTMLSelectElement).value
+    );
+    const time = parseInt(
+      (document.getElementsByName("scheduleTime")[0] as HTMLSelectElement).value
+    );
+    const url = (document.querySelector("#scheduleUrl") as HTMLInputElement).value;
+  
     window.opener.postMessage(
       {
-        title: (document.querySelector("#scheduleTitle") as HTMLInputElement)
-          .value,
-        content: (
-          document.querySelector("#scheduleContent") as HTMLInputElement
-        ).value,
-        year: parseInt(
-          (document.getElementsByName("scheduleYear")[0] as HTMLSelectElement)
-            .value
-        ),
-        period: (
-          document.getElementsByName("schedulePeriod")[0] as HTMLSelectElement
-        ).value,
-        day: parseInt(
-          (document.getElementsByName("scheduleDay")[0] as HTMLSelectElement)
-            .value
-        ),
-        time: parseInt(
-          (document.getElementsByName("scheduleTime")[0] as HTMLSelectElement)
-            .value
-        ),
+        title,
+        content,
+        year,
+        period,
+        day,
+        time,
+        url: url || null, // URL が空なら null を送る
       },
       "*"
     );
     window.close();
-  });
+  });  
 });
