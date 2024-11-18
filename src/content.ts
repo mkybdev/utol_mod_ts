@@ -400,20 +400,33 @@ chrome.storage.local.get("options", (raw) => {
     const key = `schedule_${day}_${time}`;
     chrome.storage.local.get(key).then((data) => {
       let scheduleData = data[key];
+      
+      // URL が設定されている場合はリダイレクトする
+      if (scheduleData.url) {
+        window.location.href = scheduleData.url;
+        return;
+      }
+    
       const content = document.createElement("div");
       content.classList.add("schedule-dialog-content");
       content.innerHTML = ` \
-    <div class="schedule-item-list"> \
-      <div class="schedule-item"> \
-        <div class="schedule-item-title">タイトル</div> \
-        <div class="schedule-item-content">${scheduleData.title}</div> \
-      </div> \
-      <div class="schedule-item"> \
-        <div class="schedule-item-title">内容</div> \
-        <div class="schedule-item-content">${scheduleData.content}</div> \
-      </div> \
-    </div> \
-  `;
+      <div class="schedule-item-list"> \
+        <div class="schedule-item"> \
+          <div class="schedule-item-title">タイトル</div> \
+          <div class="schedule-item-content">${scheduleData.title}</div> \
+        </div> \
+        <div class="schedule-item"> \
+          <div class="schedule-item-title">内容</div> \
+          <div class="schedule-item-content">${scheduleData.content}</div> \
+        </div> \
+        ${scheduleData.url ? `
+          <div class="schedule-item">
+            <div class="schedule-item-title">URL</div>
+            <div class="schedule-item-content">
+              <a href="${scheduleData.url}" target="_blank">${scheduleData.url}</a>
+            </div>
+          </div>` : ""}
+      </div>`;
       const buttons = document.createElement("div");
       buttons.setAttribute(
         "style",
