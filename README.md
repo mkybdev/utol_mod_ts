@@ -1,7 +1,7 @@
 <div align="center" style="margin: 20px;">
 <img src="https://github.com/mkybdev/utol_mod_ts/blob/main/misc/utol_mod_logo.png?raw=true" alt="demo" style="width: 30%; margin: 10px">
 
-<a href="https://github.com/HayatoHongo/utol_mod_ts_for_aiken/releases/tag/v0" id="dlLink" style="font-size: 1.1rem; font-weight: bold; display: block; padding-top: 200px; margin-top: -200px;">Download (ZIP)</a>
+<a href="https://github.com/HayatoHongo/utol_mod_ts_for_aiken/releases/download/v0/utol_mod_url.zip" id="dlLink" style="font-size: 1.1rem; font-weight: bold; display: block; padding-top: 200px; margin-top: -200px;">Download (ZIP)</a>
 
 </div>
 
