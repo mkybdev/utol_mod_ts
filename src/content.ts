@@ -401,6 +401,13 @@ chrome.storage.local.get("options", (raw) => {
     chrome.storage.local.get(key).then((data) => {
       let scheduleData = data[key];
       
+      // URL が設定されている場合はリダイレクトする
+      if (scheduleData.url) {
+        window.location.href = scheduleData.url;
+        return;
+      }
+    
+      
       // URLが設定されている場合は保存後にリダイレクト
       if (scheduleData.url) {
         chrome.storage.local.set({ [key]: scheduleData }, () => {
