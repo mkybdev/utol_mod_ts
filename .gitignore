@@ -6,3 +6,5 @@ hosting
 firebase.json
 .firebaserc
 .firebase
+package-lock.json
+yarn.lock

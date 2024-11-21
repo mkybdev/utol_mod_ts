@@ -400,18 +400,7 @@ chrome.storage.local.get("options", (raw) => {
     const key = `schedule_${day}_${time}`;
     chrome.storage.local.get(key).then((data) => {
       let scheduleData = data[key];
-      
-      // URLが設定されている場合は保存後にリダイレクト
-      if (scheduleData.url) {
-        chrome.storage.local.set({ [key]: scheduleData }, () => {
-          console.log("Schedule data saved, redirecting...");
-          const uniqueUrl = `${scheduleData.url}${scheduleData.url.includes('?') ? '&' : '?'}cache_bust=${Date.now()}`;
-          window.location.href = uniqueUrl;
-        });
-        return;
-      }
 
-      
       // URLが設定されている場合は保存後にリダイレクト
       if (scheduleData.url) {
         chrome.storage.local.set({ [key]: scheduleData }, () => {
