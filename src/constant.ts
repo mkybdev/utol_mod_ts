@@ -1,0 +1,1 @@
+export const autoLoginURL = "https://utol.ecc.u-tokyo.ac.jp/saml/login?disco=true";

@@ -19,6 +19,7 @@ export default defineConfig((opt) => {
       rollupOptions: {
         input: {
           content: path.resolve(__dirname, "src/content.ts"),
+          constant: path.resolve(__dirname, "src/constant.ts"),
           add_schedule: path.resolve(
             __dirname,
             "src/add_schedule/add_schedule.html"

@@ -13,13 +13,13 @@
       ],
       "js": ["content.js"],
       "css": ["style.css"],
-      "run_at": "document_start",
+      "run_at": "document_end",
       "all_frames": true
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/*", "add_schedule/*"],
+      "resources": ["images/*", "add_schedule/*", "*.js"],
       "matches": ["<all_urls>"]
     }
   ],
