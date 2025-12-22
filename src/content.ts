@@ -3,18 +3,26 @@ import { html, render } from "lit-html";
 import "./public/style.css";
 
 import Darkmode from "darkmode-js";
+import { scheduleDB } from "./scheduleDB";
 
-type Schedule = {
-	title: string;
-	content: string;
-	year: number;
-	period: string;
-	day: number;
-	time: number;
-	url: string | null;
-};
+function normalizeUrl(url: string | null): string {
+	if (!url) return "";
+	const trimmedUrl = url.trim();
+	if (/^https?:\/\//i.test(trimmedUrl) || trimmedUrl.startsWith("//")) {
+		return trimmedUrl;
+	}
+	if (
+		!trimmedUrl.startsWith("/") &&
+		!trimmedUrl.startsWith("./") &&
+		!trimmedUrl.startsWith("../") &&
+		trimmedUrl.includes(".")
+	) {
+		return "https://" + trimmedUrl;
+	}
+	return trimmedUrl;
+}
 
-chrome.storage.local.get("options", (raw) => {
+chrome.storage.local.get("options", async (raw) => {
 	const initialOptions = {
 		sideMenu: "0",
 		pdfDialog: "0",
@@ -31,6 +39,14 @@ chrome.storage.local.get("options", (raw) => {
 	const options = { ...initialOptions, ...(raw.options ?? {}) };
 	chrome.storage.local.set({ options: options });
 	console.log(options);
+
+	// Initialize IndexedDB and migrate data
+	try {
+		await scheduleDB.init();
+		await scheduleDB.migrateFromChromeStorage();
+	} catch (error) {
+		console.error("Failed to initialize scheduleDB:", error);
+	}
 
 	if (options.autoLogin === "0" && window.location.pathname.includes("login")) {
 		window.location.href =
@@ -135,7 +151,7 @@ chrome.storage.local.get("options", (raw) => {
 		clearInterval(headerNameInitCheckTimer);
 	}
 
-	function showSchedule() {
+	async function showSchedule() {
 		// 変更を加える要素
 		const timetableContents = document.querySelector(
 			".div-table.contents-detail",
@@ -208,20 +224,10 @@ chrome.storage.local.get("options", (raw) => {
 							? semester[today.getMonth()]
 							: selectedSemester,
 				};
-				chrome.storage.local.get(null, (schedule) => {
-					Object.values(schedule).forEach((s: { [key: string]: any }) => {
-						// Skip non-schedule objects (like 'options')
-						if (
-							!s ||
-							typeof s !== "object" ||
-							!s.year ||
-							!s.period ||
-							!s.day ||
-							!s.time
-						) {
-							return;
-						}
 
+				try {
+					const schedules = await scheduleDB.getAllSchedules();
+					schedules.forEach((s) => {
 						if (
 							s.year !== targetPeriod.year ||
 							(!targetPeriod.semester.includes(s.period) && s.period !== "X")
@@ -245,8 +251,8 @@ chrome.storage.local.get("options", (raw) => {
 
 							target = tbody.children[timeIndex].children[dayIndex];
 							addDOM = document.createElement("div");
-							addDOM.dataset.day = s.day;
-							addDOM.dataset.time = s.time;
+							addDOM.dataset.day = String(s.day);
+							addDOM.dataset.time = String(s.time);
 							addDOM.classList.add("clearfix");
 							const title = document.createElement("div");
 							title.classList.add("schedule-title");
@@ -274,8 +280,8 @@ chrome.storage.local.get("options", (raw) => {
 							target =
 								tbody.children[Number(s.time) + 1].children[Number(s.day) + 1];
 							addDOM = document.createElement("div");
-							addDOM.dataset.day = s.day;
-							addDOM.dataset.time = s.time;
+							addDOM.dataset.day = String(s.day);
+							addDOM.dataset.time = String(s.time);
 							addDOM.classList.add("clearfix");
 							const title = document.createElement("div");
 							title.classList.add("calendar-course-list", "bold-txt", "break");
@@ -295,8 +301,8 @@ chrome.storage.local.get("options", (raw) => {
 							const targets = timetableContents.querySelectorAll(selector);
 							targets.forEach((target) => {
 								addDOM = document.createElement("div");
-								addDOM.dataset.day = s.day;
-								addDOM.dataset.time = s.time;
+								addDOM.dataset.day = String(s.day);
+								addDOM.dataset.time = String(s.time);
 								addDOM.classList.add("clearfix");
 								const title = document.createElement("div");
 								title.classList.add(
@@ -331,12 +337,14 @@ chrome.storage.local.get("options", (raw) => {
 						});
 						target!.appendChild(addDOM!);
 					});
-				});
+				} catch (error) {
+					console.error("Failed to load schedules:", error);
+				}
 			}
 		}
 	}
 
-	function showScheduleDeleteDialog(key: string, title: string) {
+	function showScheduleDeleteDialog(day: number, time: number, title: string) {
 		const el = document.createElement("div");
 		el.tabIndex = -1;
 		el.role = "dialog";
@@ -377,12 +385,16 @@ chrome.storage.local.get("options", (raw) => {
 		deleteButton.type = "button";
 		deleteButton.classList.add("schedule-dialog-btn");
 		deleteButton.value = "削除する";
-		deleteButton.addEventListener("click", () => {
-			chrome.storage.local.remove(key).then(() => {
+		deleteButton.addEventListener("click", async () => {
+			try {
+				await scheduleDB.deleteSchedule(day, time);
 				document.querySelector(".schedule-dialog")!.remove();
 				document.querySelector(".schedule-dialog-overlay")!.remove();
 				window.location.reload();
-			});
+			} catch (error) {
+				console.error("Failed to delete schedule:", error);
+				alert("予定の削除に失敗しました");
+			}
 		});
 		buttons.appendChild(deleteButton);
 		content.appendChild(buttons);
@@ -399,7 +411,7 @@ chrome.storage.local.get("options", (raw) => {
 		document.body.appendChild(el2);
 	}
 
-	function showScheduleDialog(day: string, time: string) {
+	async function showScheduleDialog(day: string, time: string) {
 		const el = document.createElement("div");
 		el.tabIndex = -1;
 		el.role = "dialog";
@@ -420,17 +432,22 @@ chrome.storage.local.get("options", (raw) => {
 			"margin: 7.5px 15px; padding: 7.5px 0; font-size: 15px; text-align: center; font-weight: bold; background-color: #96c1ea;",
 		);
 		titleBar.innerHTML = "予定詳細";
-		const key = `schedule_${day}_${time}`;
-		chrome.storage.local.get(key).then((data) => {
-			let scheduleData = data[key];
 
-			// URLが設定されている場合は保存後にリダイレクト
-			if (scheduleData.url) {
-				chrome.storage.local.set({ [key]: scheduleData }, () => {
-					const uniqueUrl = scheduleData.url;
-					window.open(uniqueUrl, "_blank") ||
-						window.location.replace(uniqueUrl);
-				});
+		try {
+			const scheduleData = await scheduleDB.getSchedule(
+				parseInt(day),
+				parseInt(time),
+			);
+
+			if (!scheduleData) {
+				console.error("Schedule not found");
+				return;
+			}
+
+			// URLが設定されている場合は直接リダイレクト
+			const url = scheduleData.url;
+			if (url) {
+				window.open(url, "_blank") || window.location.replace(url);
 				return;
 			}
 
@@ -453,7 +470,7 @@ chrome.storage.local.get("options", (raw) => {
           <div class="schedule-item">
             <div class="schedule-item-title">URL</div>
             <div class="schedule-item-content">
-              <a href="${scheduleData.url}" target="_blank">${scheduleData.url}</a>
+              <a href="${normalizeUrl(scheduleData.url)}" target="_blank">${scheduleData.url}</a>
             </div>
           </div>`
 						: ""
@@ -474,7 +491,11 @@ chrome.storage.local.get("options", (raw) => {
 			deleteButton.addEventListener("click", () => {
 				document.querySelector(".schedule-dialog")!.remove();
 				document.querySelector(".schedule-dialog-overlay")!.remove();
-				showScheduleDeleteDialog(key, scheduleData.title);
+				showScheduleDeleteDialog(
+					parseInt(day),
+					parseInt(time),
+					scheduleData.title,
+				);
 			});
 			buttons.appendChild(deleteButton);
 			const closeButton = document.createElement("input");
@@ -498,7 +519,9 @@ chrome.storage.local.get("options", (raw) => {
 			);
 			el2.style.zIndex = "100";
 			document.body.appendChild(el2);
-		});
+		} catch (error) {
+			console.error("Failed to load schedule:", error);
+		}
 	}
 
 	function showAddScheduleModal() {
@@ -658,7 +681,7 @@ chrome.storage.local.get("options", (raw) => {
 		addButton.type = "button";
 		addButton.classList.add("schedule-dialog-btn");
 		addButton.value = "追加";
-		addButton.addEventListener("click", () => {
+		addButton.addEventListener("click", async () => {
 			const title = (
 				document.querySelector("#modal-scheduleTitle") as HTMLInputElement
 			).value;
@@ -680,16 +703,16 @@ chrome.storage.local.get("options", (raw) => {
 				(document.querySelector("#modal-scheduleTime") as HTMLSelectElement)
 					.value,
 			);
-			const url = (
+			const urlInput = (
 				document.querySelector("#modal-scheduleUrl") as HTMLInputElement
 			).value;
+			const url = normalizeUrl(urlInput);
 
 			if (!title.trim()) {
 				alert("タイトルを入力してください");
 				return;
 			}
 
-			const key = `schedule_${day}_${time}`;
 			const data = {
 				title,
 				content,
@@ -697,14 +720,18 @@ chrome.storage.local.get("options", (raw) => {
 				period,
 				day,
 				time,
-				url: url || null,
+				url: normalizeUrl(url) || null,
 			};
 
-			chrome.storage.local.set({ [key]: data }).then(() => {
+			try {
+				await scheduleDB.saveSchedule(day, time, data);
 				modal.remove();
 				overlay.remove();
 				window.location.reload();
-			});
+			} catch (error) {
+				console.error("Failed to save schedule:", error);
+				alert("予定の保存に失敗しました");
+			}
 		});
 
 		buttons.appendChild(cancelButton);
