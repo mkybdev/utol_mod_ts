@@ -323,3 +323,66 @@ button.darkmode-toggle {
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* Add Schedule Modal Form Styles */
+.add-schedule-modal {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.add-schedule-form {
+  align-items: flex-start !important;
+}
+
+.schedule-form-row {
+  border-bottom: 1px solid #ddd;
+  display: table;
+  width: 100%;
+}
+
+.schedule-form-label {
+  display: table-cell;
+  padding: 9px 15px 9px 25px;
+  vertical-align: middle;
+  width: 20%;
+  font-weight: bold;
+  font-size: 108%;
+}
+
+.schedule-form-input {
+  color: #545555;
+  padding: 6px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: 13px / 1.231 arial, helvetica, clean, sans-serif;
+  border: 1px solid #ddd;
+}
+
+.schedule-form-inline {
+  display: table-cell;
+  padding: 9px 15px 9px 25px;
+  width: 80%;
+  word-break: break-word;
+}
+
+.schedule-form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  line-height: 1.5em;
+  min-height: 20px;
+  text-indent: 0.01px;
+  text-overflow: ellipsis;
+  padding: 5px 1.8em 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  margin-right: 10px;
+}
+
+.schedule-form-row > .schedule-form-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

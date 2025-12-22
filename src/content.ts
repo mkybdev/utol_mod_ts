@@ -1,7 +1,18 @@
 // メインスクリプト
+import { html, render } from "lit-html";
 import "./public/style.css";
 
 import Darkmode from "darkmode-js";
+
+type Schedule = {
+	title: string;
+	content: string;
+	year: number;
+	period: string;
+	day: number;
+	time: number;
+	url: string | null;
+};
 
 chrome.storage.local.get("options", (raw) => {
 	const initialOptions = {
@@ -21,7 +32,7 @@ chrome.storage.local.get("options", (raw) => {
 	chrome.storage.local.set({ options: options });
 	console.log(options);
 
-	if (options.autoLogin == "0" && window.location.pathname.includes("login")) {
+	if (options.autoLogin === "0" && window.location.pathname.includes("login")) {
 		window.location.href =
 			"https://utol.ecc.u-tokyo.ac.jp/saml/login?disco=true";
 	}
@@ -53,7 +64,7 @@ chrome.storage.local.get("options", (raw) => {
 
 	document.onreadystatechange = () => {
 		if (document.readyState === "complete") {
-			if (options.themeButton == "0") {
+			if (options.themeButton === "0") {
 				const options = {
 					time: "0s",
 					mixColor: "#fff",
@@ -75,7 +86,7 @@ chrome.storage.local.get("options", (raw) => {
 			if (!impHeaderFlag) impHeaderLoaded();
 			if (!pageTopButtonFlag) pageTopButtonLoaded();
 			if (!headerNameFlag) headerNameLoaded();
-			if (options.pdfDialog == "0") preventPdfDialog();
+			if (options.pdfDialog === "0") preventPdfDialog();
 		}
 	};
 
@@ -87,9 +98,10 @@ chrome.storage.local.get("options", (raw) => {
 			const objectNameDiv = file.querySelector(".objectName");
 			if (fileNameDiv != null && objectNameDiv != null) {
 				const fileName = fileNameDiv.textContent;
-				if (!fileName!.includes(".pdf")) return;
+				if (!fileName.includes(".pdf")) return;
 				const oldLink = file.querySelector(".link-txt.downloadFile");
-				const name = oldLink!.textContent;
+				if (oldLink == null) return;
+				const name = oldLink.textContent;
 				const objectName = objectNameDiv.textContent;
 				const reportId = (
 					document.querySelector('[name="reportId"]') as HTMLInputElement
@@ -103,8 +115,8 @@ chrome.storage.local.get("options", (raw) => {
 				newLink.target = "_blank";
 				newLink.classList.add("new-pdf-link");
 				file
-					.querySelector(".link-txt.downloadFile")!
-					.classList.add("pdf-link-hide");
+					.querySelector(".link-txt.downloadFile")
+					?.classList.add("pdf-link-hide");
 				file.prepend(newLink);
 			}
 		});
@@ -133,7 +145,7 @@ chrome.storage.local.get("options", (raw) => {
 			clearInterval(timetableContentsInitCheckTimer);
 			showScheduleFlag = true;
 			// 登録されているスケジュールを表示
-			if (timetableContents != null && options.addSchedule == "0") {
+			if (timetableContents != null && options.addSchedule === "0") {
 				const semester = [
 					"A2",
 					"W",
@@ -148,37 +160,20 @@ chrome.storage.local.get("options", (raw) => {
 					"A1",
 					"A2",
 				];
-				// const toSemester = (str: string) => {
-				//   switch (str) {
-				//     case "0A":
-				//       return "S1";
-				//     case "0B":
-				//       return "S2";
-				//     case "0C":
-				//       return "A1";
-				//     case "0D":
-				//       return "A2";
-				//     case "0E":
-				//       return "W";
-				//     default:
-				//       return str;
-				//   }
-				// };
 				const getSearchParams = (param: string) => {
 					const searchParams = new URLSearchParams(window.location.search);
 					return searchParams.get(param);
 				};
 				// 時間割の表示タイプ
 				const displayMode = getSearchParams("selectDisplayMode") ?? "";
-				// const calendarMode = getSearchParams("selectCalendarMode") ?? "";
-				const isTimetableDisplay = displayMode == "" || displayMode == "0";
+				const isTimetableDisplay = displayMode === "" || displayMode === "0";
 				const weekMonthToggle = document.querySelector(
 					".timetable-today-btn-area a",
 				)?.textContent;
 				const isWeeklyDisplay =
-					displayMode == "1" && weekMonthToggle == "月表示";
+					displayMode === "1" && weekMonthToggle === "月表示";
 				const isMonthlyDisplay =
-					displayMode == "1" && weekMonthToggle == "週表示";
+					displayMode === "1" && weekMonthToggle === "週表示";
 				// 時間割の対象期間
 				const today = new Date();
 				const selectedYear = (
@@ -197,7 +192,7 @@ chrome.storage.local.get("options", (raw) => {
 							) as HTMLSelectElement
 						).textContent
 					: semester[
-							parseInt(
+							Number(
 								(
 									document
 										.getElementsByName("selectMonth")[0]
@@ -206,29 +201,49 @@ chrome.storage.local.get("options", (raw) => {
 							) - 1
 						];
 				const targetPeriod = {
-					year: selectedYear == "" ? today.getFullYear() : selectedYear,
+					year:
+						selectedYear === "" ? today.getFullYear() : Number(selectedYear),
 					semester:
-						selectedSemester == ""
+						selectedSemester === ""
 							? semester[today.getMonth()]
-							: selectedSemester!,
+							: selectedSemester,
 				};
-				console.log(
-					`Target Period: ${targetPeriod.year} ${targetPeriod.semester}`,
-				);
-				chrome.storage.local.get(null, (schedule: object) => {
+				chrome.storage.local.get(null, (schedule) => {
 					Object.values(schedule).forEach((s: { [key: string]: any }) => {
+						// Skip non-schedule objects (like 'options')
 						if (
-							s.year != targetPeriod.year ||
-							(!targetPeriod.semester.includes(s.period) && s.period != "X")
+							!s ||
+							typeof s !== "object" ||
+							!s.year ||
+							!s.period ||
+							!s.day ||
+							!s.time
+						) {
+							return;
+						}
+
+						if (
+							s.year !== targetPeriod.year ||
+							(!targetPeriod.semester.includes(s.period) && s.period !== "X")
 						)
 							return;
 						console.log(s);
-						let target, addDOM;
+						let target: Element, addDOM: HTMLDivElement;
 						if (isTimetableDisplay) {
-							target =
-								timetableContents.children[parseInt(s.time)].children[
-									parseInt(s.day)
-								];
+							const timeIndex = Number(s.time);
+							const dayIndex = Number(s.day);
+
+							// Verify the DOM element exists before accessing it
+							const tbody = timetableContents.children[0];
+							if (
+								!tbody ||
+								!tbody.children[timeIndex] ||
+								!tbody.children[timeIndex].children[dayIndex]
+							) {
+								return;
+							}
+
+							target = tbody.children[timeIndex].children[dayIndex];
 							addDOM = document.createElement("div");
 							addDOM.dataset.day = s.day;
 							addDOM.dataset.time = s.time;
@@ -243,14 +258,21 @@ chrome.storage.local.get("options", (raw) => {
 							addDOM.appendChild(content);
 						} else if (isWeeklyDisplay) {
 							if (
-								timetableContents
-									.querySelectorAll(".div-table-data-row")[0]
-									.querySelector(`div:nth-child(${s.day + 2}):has(span)`) ==
-								null
-							)
+								!timetableContents.querySelectorAll(".div-table-data-row")[0]
+							) {
 								return;
+							}
+							// For weekly display, use timetableContents directly (different structure)
+							const tbody = timetableContents.children[0];
+							if (
+								!tbody ||
+								!tbody.children[Number(s.time) + 1] ||
+								!tbody.children[Number(s.time) + 1].children[Number(s.day) + 1]
+							) {
+								return;
+							}
 							target =
-								timetableContents.children[s.time + 1].children[s.day + 1];
+								tbody.children[Number(s.time) + 1].children[Number(s.day) + 1];
 							addDOM = document.createElement("div");
 							addDOM.dataset.day = s.day;
 							addDOM.dataset.time = s.time;
@@ -267,9 +289,10 @@ chrome.storage.local.get("options", (raw) => {
 							)}時限 ${s.title}</div>`;
 							addDOM.appendChild(title);
 						} else if (isMonthlyDisplay) {
-							const targets = timetableContents.querySelectorAll(
-								`.div-table-data-row div:nth-child(${s.day + 1}):has(span)`,
-							);
+							// For monthly display, select date cells directly (TD elements, not DIV)
+							// Use attribute selector because class names start with numbers (1-yobicol, 2-yobicol, etc.)
+							const selector = `.div-table-data-row > td[class*="${Number(s.day)}-yobicol"]:has(> span)`;
+							const targets = timetableContents.querySelectorAll(selector);
 							targets.forEach((target) => {
 								addDOM = document.createElement("div");
 								addDOM.dataset.day = s.day;
@@ -404,8 +427,6 @@ chrome.storage.local.get("options", (raw) => {
 			// URLが設定されている場合は保存後にリダイレクト
 			if (scheduleData.url) {
 				chrome.storage.local.set({ [key]: scheduleData }, () => {
-					console.log("Schedule data saved, redirecting...");
-					//   const uniqueUrl = `${scheduleData.url}${scheduleData.url.includes('?') ? '&' : '?'}cache_bust=${Date.now()}`;
 					const uniqueUrl = scheduleData.url;
 					window.open(uniqueUrl, "_blank") ||
 						window.location.replace(uniqueUrl);
@@ -415,16 +436,17 @@ chrome.storage.local.get("options", (raw) => {
 
 			const content = document.createElement("div");
 			content.classList.add("schedule-dialog-content");
-			content.innerHTML = ` \
-      <div class="schedule-item-list"> \
-        <div class="schedule-item"> \
-          <div class="schedule-item-title">タイトル</div> \
-          <div class="schedule-item-content">${scheduleData.title}</div> \
-        </div> \
-        <div class="schedule-item"> \
-          <div class="schedule-item-title">内容</div> \
-          <div class="schedule-item-content">${scheduleData.content}</div> \
-        </div> \
+			render(
+				html`
+				<div class="schedule-item-list">
+        <div class="schedule-item">
+          <div class="schedule-item-title">タイトル</div>
+          <div class="schedule-item-content">${scheduleData.title}</div>
+        </div>
+        <div class="schedule-item">
+          <div class="schedule-item-title">内容</div>
+          <div class="schedule-item-content">${scheduleData.content}</div>
+        </div>
         ${
 					scheduleData.url
 						? `
@@ -436,7 +458,10 @@ chrome.storage.local.get("options", (raw) => {
           </div>`
 						: ""
 				}
-      </div>`;
+      </div>
+		`,
+				content,
+			);
 			const buttons = document.createElement("div");
 			buttons.setAttribute(
 				"style",
@@ -476,6 +501,223 @@ chrome.storage.local.get("options", (raw) => {
 		});
 	}
 
+	function showAddScheduleModal() {
+		// Semester configuration
+		const semester = [
+			"A2",
+			"W",
+			"W",
+			"S1",
+			"S1",
+			"S2",
+			"S2",
+			"S2",
+			"S2",
+			"A1",
+			"A1",
+			"A2",
+		];
+		const semesterId: { [key: string]: number } = {
+			S: 1,
+			S1: 2,
+			S2: 3,
+			A: 4,
+			A1: 5,
+			A2: 6,
+			W: 7,
+		};
+		const today = new Date();
+		const todayYear = today.getFullYear();
+		const todayMonth = today.getMonth() + 1;
+		const todaySemester = semester[todayMonth - 1];
+
+		// Create modal overlay
+		const overlay = document.createElement("div");
+		overlay.classList.add(
+			"ui-widget-overlay",
+			"ui-front",
+			"schedule-dialog-overlay",
+		);
+		overlay.style.zIndex = "100";
+
+		// Create modal dialog
+		const modal = document.createElement("div");
+		modal.tabIndex = -1;
+		modal.role = "dialog";
+		modal.classList.add(
+			"ui-dialog",
+			"ui-corner-all",
+			"ui-widget",
+			"ui-widget-content",
+			"ui-front",
+			"schedule-dialog",
+			"add-schedule-modal",
+		);
+		modal.setAttribute("aria-describedby", "add_schedule_dialog");
+		modal.setAttribute("aria-labelledby", "ui-id-add-schedule");
+
+		// Title bar
+		const titleBar = document.createElement("div");
+		titleBar.classList.add("schedule-dialog-title");
+		titleBar.setAttribute(
+			"style",
+			"margin: 7.5px 15px; padding: 7.5px 0; font-size: 15px; text-align: center; font-weight: bold; background-color: #96c1ea;",
+		);
+		titleBar.innerHTML = "予定を登録";
+
+		// Content area
+		const content = document.createElement("div");
+		content.classList.add("schedule-dialog-content", "add-schedule-form");
+		content.innerHTML = `
+			<div class="schedule-form-row">
+				<label class="schedule-form-label" for="modal-scheduleTitle">タイトル</label>
+				<input type="text" id="modal-scheduleTitle" class="schedule-form-input" maxlength="50" />
+			</div>
+			<div class="schedule-form-row">
+				<label class="schedule-form-label" for="modal-scheduleContent">内容</label>
+				<textarea id="modal-scheduleContent" class="schedule-form-input" rows="5"></textarea>
+			</div>
+			<div class="schedule-form-row">
+				<label class="schedule-form-label">年度・時期</label>
+				<div class="schedule-form-inline">
+					<select id="modal-scheduleYear" class="schedule-form-select"></select>
+					<select id="modal-schedulePeriod" class="schedule-form-select">
+						<option value="S">S</option>
+						<option value="S1">S1</option>
+						<option value="S2">S2</option>
+						<option value="A">A</option>
+						<option value="A1">A1</option>
+						<option value="A2">A2</option>
+						<option value="W">W</option>
+						<option value="X">通年</option>
+					</select>
+				</div>
+			</div>
+			<div class="schedule-form-row">
+				<label class="schedule-form-label">曜日・時限</label>
+				<div class="schedule-form-inline">
+					<select id="modal-scheduleDay" class="schedule-form-select">
+						<option value="1">月曜日</option>
+						<option value="2">火曜日</option>
+						<option value="3">水曜日</option>
+						<option value="4">木曜日</option>
+						<option value="5">金曜日</option>
+						<option value="6">土曜日</option>
+					</select>
+					<select id="modal-scheduleTime" class="schedule-form-select">
+						<option value="1">１時限</option>
+						<option value="2">２時限</option>
+						<option value="3">３時限</option>
+						<option value="4">４時限</option>
+						<option value="5">５時限</option>
+						<option value="6">６時限</option>
+						<option value="7">７時限</option>
+					</select>
+				</div>
+			</div>
+			<div class="schedule-form-row">
+				<label class="schedule-form-label" for="modal-scheduleUrl">URL (任意)</label>
+				<input type="text" id="modal-scheduleUrl" class="schedule-form-input" placeholder="https://example.com" />
+			</div>
+		`;
+
+		// Populate year dropdown
+		const yearSelect = content.querySelector(
+			"#modal-scheduleYear",
+		) as HTMLSelectElement;
+		for (let i = 0; i < 4; i++) {
+			const option = document.createElement("option");
+			option.value = `${todayYear - i}`;
+			option.textContent = `${todayYear - i}年度`;
+			yearSelect.appendChild(option);
+		}
+
+		// Set default semester
+		const periodSelect = content.querySelector(
+			"#modal-schedulePeriod",
+		) as HTMLSelectElement;
+		periodSelect.selectedIndex = semesterId[todaySemester] - 1;
+
+		// Buttons
+		const buttons = document.createElement("div");
+		buttons.setAttribute(
+			"style",
+			"display: flex; justify-content: center; margin-top: 15px; gap: 10px;",
+		);
+
+		const cancelButton = document.createElement("input");
+		cancelButton.type = "button";
+		cancelButton.classList.add("schedule-dialog-btn");
+		cancelButton.value = "キャンセル";
+		cancelButton.addEventListener("click", () => {
+			modal.remove();
+			overlay.remove();
+		});
+
+		const addButton = document.createElement("input");
+		addButton.type = "button";
+		addButton.classList.add("schedule-dialog-btn");
+		addButton.value = "追加";
+		addButton.addEventListener("click", () => {
+			const title = (
+				document.querySelector("#modal-scheduleTitle") as HTMLInputElement
+			).value;
+			const content = (
+				document.querySelector("#modal-scheduleContent") as HTMLTextAreaElement
+			).value;
+			const year = Number(
+				(document.querySelector("#modal-scheduleYear") as HTMLSelectElement)
+					.value,
+			);
+			const period = (
+				document.querySelector("#modal-schedulePeriod") as HTMLSelectElement
+			).value;
+			const day = Number(
+				(document.querySelector("#modal-scheduleDay") as HTMLSelectElement)
+					.value,
+			);
+			const time = Number(
+				(document.querySelector("#modal-scheduleTime") as HTMLSelectElement)
+					.value,
+			);
+			const url = (
+				document.querySelector("#modal-scheduleUrl") as HTMLInputElement
+			).value;
+
+			if (!title.trim()) {
+				alert("タイトルを入力してください");
+				return;
+			}
+
+			const key = `schedule_${day}_${time}`;
+			const data = {
+				title,
+				content,
+				year,
+				period,
+				day,
+				time,
+				url: url || null,
+			};
+
+			chrome.storage.local.set({ [key]: data }).then(() => {
+				modal.remove();
+				overlay.remove();
+				window.location.reload();
+			});
+		});
+
+		buttons.appendChild(cancelButton);
+		buttons.appendChild(addButton);
+		content.appendChild(buttons);
+
+		modal.appendChild(titleBar);
+		modal.appendChild(content);
+
+		document.body.appendChild(overlay);
+		document.body.appendChild(modal);
+	}
+
 	function sideMenuLoaded() {
 		// 変更を加える要素
 		const sideMenu = document.querySelector("#sidemenu");
@@ -486,7 +728,7 @@ chrome.storage.local.get("options", (raw) => {
 			sideMenuFlag = true;
 
 			// サイドメニューを隠す
-			if (options.sideMenu == "0") {
+			if (options.sideMenu === "0") {
 				sideMenu.classList.add("sidemenu-close");
 				document.querySelector("#pageMain")!.classList.add("sidemenu-hide");
 				document
@@ -507,7 +749,7 @@ chrome.storage.local.get("options", (raw) => {
 			clearInterval(emgHeaderInitCheckTimer);
 			emgHeaderFlag = true;
 			// 「緊急のお知らせ」をたたむ
-			if (emgHeader != null && options.noticeFold == "0") {
+			if (emgHeader != null && options.noticeFold === "0") {
 				emgHeaderFlag = true;
 				emgHeader.classList.add("noticeFold");
 				document.querySelector("#emgInformation")!.classList.add("noticeFold");
@@ -528,7 +770,7 @@ chrome.storage.local.get("options", (raw) => {
 			clearInterval(impHeaderInitCheckTimer);
 			impHeaderFlag = true;
 			// 「重要なお知らせ」をたたむ
-			if (impHeader != null && options.noticeFold == "0") {
+			if (impHeader != null && options.noticeFold === "0") {
 				impHeaderFlag = true;
 				impHeader.classList.add("noticeFold");
 				document.querySelector("#impInformation")!.classList.add("noticeFold");
@@ -553,7 +795,7 @@ chrome.storage.local.get("options", (raw) => {
 			headerFlag = true;
 
 			// 「時間割」ボタンの追加
-			if (options.timetableButton == "0") {
+			if (options.timetableButton === "0") {
 				const timetableIconURL = chrome.runtime.getURL(
 					"images/head_icon_timetable.png",
 				);
@@ -579,7 +821,7 @@ chrome.storage.local.get("options", (raw) => {
 			clearInterval(otherCourseInitCheckTimer);
 			otherCourseFlag = true;
 			// 「ワークルール〜」を非表示
-			if (otherCourse != null && options.deleteWorkRule == "0") {
+			if (otherCourse != null && options.deleteWorkRule === "0") {
 				const otherCourses = otherCourse.querySelectorAll(
 					".div-table-cell-row",
 				);
@@ -602,7 +844,7 @@ chrome.storage.local.get("options", (raw) => {
 		if (!isTimetable || (isTimetable && timetableBar != null)) {
 			clearInterval(timetableBarInitCheckTimer);
 			timetableBarFlag = true;
-			if (timetableBar != null && options.addSchedule == "0") {
+			if (timetableBar != null && options.addSchedule === "0") {
 				const timetableIcon = timetableBar.querySelector(".timetable-icon");
 				// アイコンを非表示
 				if (timetableIcon != null)
@@ -613,38 +855,7 @@ chrome.storage.local.get("options", (raw) => {
 				addButton.value = "予定を追加";
 				addButton.classList.add("mode-btn", "false", "add-schedule-btn");
 				addButton.addEventListener("click", () => {
-					let width = window.screen.availWidth * 0.6;
-					let height = window.screen.availHeight * 0.6;
-					let option = "width=" + width + ", height=" + height;
-					if (typeof window.screenX != "undefined") {
-						option +=
-							", screenX=" +
-							(window.screenX + (window.screen.availWidth - width) / 2) +
-							", screenY=" +
-							(window.screenY + (window.screen.availHeight - height) / 2);
-					} else if (typeof window.screenLeft != "undefined") {
-						option +=
-							", left=" +
-							(window.screenLeft + (window.screen.availWidth - width) / 2) +
-							", top=" +
-							(window.screenTop + (window.screen.availHeight - height) / 2);
-					}
-					window.open(
-						chrome.runtime.getURL("add_schedule/add_schedule.html"),
-						"予定の追加",
-						option,
-					);
-					window.addEventListener("message", (event) => {
-						const data = event.data;
-						const key = `schedule_${data.day}_${data.time}`;
-						const obj = { [key]: data };
-						chrome.storage.local.set(obj).then(() => {
-							chrome.storage.local.get(null, (data) => {
-								console.log(data);
-							});
-							window.location.reload();
-						});
-					});
+					showAddScheduleModal();
 				});
 				const timetableTitle = timetableBar.querySelector(".timetable-title");
 				timetableTitle!.classList.add("addSchedule");
@@ -661,7 +872,7 @@ chrome.storage.local.get("options", (raw) => {
 			clearInterval(selectTimetableInitCheckTimer);
 			selectTimetableFlag = true;
 
-			if (options.taskList == "0") {
+			if (options.taskList === "0") {
 				fetch("https://utol.ecc.u-tokyo.ac.jp/lms/task")
 					.then((response) => response.text())
 					.then((data) => {
@@ -673,9 +884,9 @@ chrome.storage.local.get("options", (raw) => {
 							)
 							.forEach((task) => {
 								if (
-									task.querySelector(".contents-hidden.status")!.textContent ==
+									task.querySelector(".contents-hidden.status")!.textContent ===
 										"1" &&
-									options.taskListSubmitted == "0"
+									options.taskListSubmitted === "0"
 								)
 									task.classList.add("tasklist-submitted");
 							});
@@ -697,7 +908,7 @@ chrome.storage.local.get("options", (raw) => {
 			pageTopButtonFlag = true;
 
 			// ページトップボタンを削除
-			if (options.timetableButton == "0") {
+			if (options.timetableButton === "0") {
 				pageTopButton.classList.add("page-top-btn-hide");
 			}
 		}
@@ -717,7 +928,7 @@ chrome.storage.local.get("options", (raw) => {
 			headerNameFlag = true;
 
 			// ヘッダーの名前を削除
-			if (options.headerName == "0") {
+			if (options.headerName === "0") {
 				(headerName ?? headerName2!).classList.add("page-head-userinfo-hide");
 			}
 		}
