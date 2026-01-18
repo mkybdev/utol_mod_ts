@@ -17,7 +17,7 @@ function normalizeUrl(url: string | null): string {
 		!trimmedUrl.startsWith("../") &&
 		trimmedUrl.includes(".")
 	) {
-		return "https://" + trimmedUrl;
+		return `https://${trimmedUrl}`;
 	}
 	return trimmedUrl;
 }
@@ -193,6 +193,89 @@ chrome.storage.local.get("options", async (raw) => {
 		clearInterval(headerNameInitCheckTimer);
 	}
 
+	type DisplayMode = "" | "0" | "1";
+	const SEMESTERS = [
+		"A2",
+		"W",
+		"W",
+		"S1",
+		"S1",
+		"S2",
+		"S2",
+		"S2",
+		"S2",
+		"A1",
+		"A1",
+		"A2",
+	];
+	const getAcademicYearFromYM = (year: string, month: string) => {
+		const academicYear = Number(year);
+		const academicMonth = Number(month);
+		if (academicMonth < 4) {
+			return academicYear - 1;
+		}
+		return academicYear;
+	};
+
+	function getTargetPeriod(displayMode: DisplayMode): {
+		isTimetableDisplay: boolean;
+		isWeeklyDisplay: boolean;
+		isMonthlyDisplay: boolean;
+		targetPeriod: { year: number; semester: string };
+	} {
+		const isTimetableDisplay = displayMode === "" || displayMode === "0";
+		const weekMonthToggle = document.querySelector(
+			".timetable-today-btn-area a",
+		)?.textContent;
+		const isWeeklyDisplay = displayMode === "1" && weekMonthToggle === "月表示";
+		const isMonthlyDisplay =
+			displayMode === "1" && weekMonthToggle === "週表示";
+		// 時間割の対象期間
+		const today = new Date();
+		const selectedYear = isTimetableDisplay
+			? (document.querySelector("#nendo option[selected]") as HTMLSelectElement)
+					.value
+			: getAcademicYearFromYM(
+					(
+						document
+							.getElementsByName("selectNendo")[0]
+							.querySelector("option[selected]") as HTMLOptionElement
+					).value,
+					(
+						document
+							.getElementsByName("selectMonth")[0]
+							.querySelector("option[selected]") as HTMLOptionElement
+					).value,
+				);
+		const selectedSemester = isTimetableDisplay
+			? (
+					document.querySelector(
+						"#kikanCd option[selected]",
+					) as HTMLSelectElement
+				).textContent
+			: SEMESTERS[
+					Number(
+						(
+							document
+								.getElementsByName("selectMonth")[0]
+								.querySelector("option[selected]") as HTMLOptionElement
+						).value,
+					) - 1
+				];
+		return {
+			isTimetableDisplay,
+			isWeeklyDisplay,
+			isMonthlyDisplay,
+			targetPeriod: {
+				year: selectedYear === "" ? today.getFullYear() : Number(selectedYear),
+				semester:
+					selectedSemester === ""
+						? SEMESTERS[today.getMonth()]
+						: selectedSemester,
+			},
+		};
+	}
+
 	async function showSchedule() {
 		// 変更を加える要素
 		const timetableContents = document.querySelector(
@@ -204,68 +287,60 @@ chrome.storage.local.get("options", async (raw) => {
 			showScheduleFlag = true;
 			// 登録されているスケジュールを表示
 			if (timetableContents != null && options.addSchedule) {
-				const semester = [
-					"A2",
-					"W",
-					"W",
-					"S1",
-					"S1",
-					"S2",
-					"S2",
-					"S2",
-					"S2",
-					"A1",
-					"A1",
-					"A2",
-				];
 				const getSearchParams = (param: string) => {
 					const searchParams = new URLSearchParams(window.location.search);
 					return searchParams.get(param);
 				};
 				// 時間割の表示タイプ
 				const displayMode = getSearchParams("selectDisplayMode") ?? "";
-				const isTimetableDisplay = displayMode === "" || displayMode === "0";
-				const weekMonthToggle = document.querySelector(
-					".timetable-today-btn-area a",
-				)?.textContent;
-				const isWeeklyDisplay =
-					displayMode === "1" && weekMonthToggle === "月表示";
-				const isMonthlyDisplay =
-					displayMode === "1" && weekMonthToggle === "週表示";
-				// 時間割の対象期間
-				const today = new Date();
-				const selectedYear = (
-					isTimetableDisplay
-						? (document.querySelector(
-								"#nendo option[selected]",
-							) as HTMLSelectElement)
-						: (document
-								.getElementsByName("selectNendo")[0]
-								.querySelector("option[selected]") as HTMLOptionElement)
-				).value;
-				const selectedSemester = isTimetableDisplay
-					? (
-							document.querySelector(
-								"#kikanCd option[selected]",
-							) as HTMLSelectElement
-						).textContent
-					: semester[
-							Number(
-								(
-									document
-										.getElementsByName("selectMonth")[0]
-										.querySelector("option[selected]") as HTMLOptionElement
-								).value,
-							) - 1
-						];
-				const targetPeriod = {
-					year:
-						selectedYear === "" ? today.getFullYear() : Number(selectedYear),
-					semester:
-						selectedSemester === ""
-							? semester[today.getMonth()]
-							: selectedSemester,
-				};
+				// const isTimetableDisplay = displayMode === "" || displayMode === "0";
+				// const weekMonthToggle = document.querySelector(
+				// 	".timetable-today-btn-area a",
+				// )?.textContent;
+				// const isWeeklyDisplay =
+				// 	displayMode === "1" && weekMonthToggle === "月表示";
+				// const isMonthlyDisplay =
+				// 	displayMode === "1" && weekMonthToggle === "週表示";
+				// // 時間割の対象期間
+				// const today = new Date();
+				// const selectedYear = (
+				// 	isTimetableDisplay
+				// 		? (document.querySelector(
+				// 				"#nendo option[selected]",
+				// 			) as HTMLSelectElement)
+				// 		: (document
+				// 				.getElementsByName("selectNendo")[0]
+				// 				.querySelector("option[selected]") as HTMLOptionElement)
+				// ).value;
+				// const selectedSemester = isTimetableDisplay
+				// 	? (
+				// 			document.querySelector(
+				// 				"#kikanCd option[selected]",
+				// 			) as HTMLSelectElement
+				// 		).textContent
+				// 	: semester[
+				// 			Number(
+				// 				(
+				// 					document
+				// 						.getElementsByName("selectMonth")[0]
+				// 						.querySelector("option[selected]") as HTMLOptionElement
+				// 				).value,
+				// 			) - 1
+				// 		];
+				// const targetPeriod = {
+				// 	year:
+				// 		selectedYear === "" ? today.getFullYear() : Number(selectedYear),
+				// 	semester:
+				// 		selectedSemester === ""
+				// 			? semester[today.getMonth()]
+				// 			: selectedSemester,
+				// };
+				const {
+					isTimetableDisplay,
+					isWeeklyDisplay,
+					isMonthlyDisplay,
+					targetPeriod,
+				} = getTargetPeriod(displayMode as DisplayMode);
 
 				try {
 					const schedules = await scheduleDB.getAllSchedules();
@@ -328,9 +403,9 @@ chrome.storage.local.get("options", async (raw) => {
 							const title = document.createElement("div");
 							title.classList.add("calendar-course-list", "bold-txt", "break");
 							const toFullWidth = (str: string) => {
-								return str.replace(/[A-Za-z0-9]/g, function (s) {
-									return String.fromCharCode(s.charCodeAt(0) + 0xfee0);
-								});
+								return str.replace(/[A-Za-z0-9]/g, (s) =>
+									String.fromCharCode(s.charCodeAt(0) + 0xfee0),
+								);
 							};
 							title.innerHTML = `<div class="bold-txt" style="cursor: pointer;">${toFullWidth(
 								String(s.time),
@@ -353,31 +428,31 @@ chrome.storage.local.get("options", async (raw) => {
 									"break",
 								);
 								const toFullWidth = (str: string) => {
-									return str.replace(/[A-Za-z0-9]/g, function (s) {
-										return String.fromCharCode(s.charCodeAt(0) + 0xfee0);
-									});
+									return str.replace(/[A-Za-z0-9]/g, (s) =>
+										String.fromCharCode(s.charCodeAt(0) + 0xfee0),
+									);
 								};
 								title.innerHTML = `<div class="bold-txt" style="cursor: pointer;">${toFullWidth(
 									String(s.time),
 								)}時限 ${s.title}</div>`;
 								addDOM.appendChild(title);
-								addDOM!.addEventListener("click", (e) => {
+								addDOM.addEventListener("click", (e) => {
 									showScheduleDialog(
-										(e.currentTarget as HTMLElement).dataset.day!,
-										(e.currentTarget as HTMLElement).dataset.time!,
+										(e.currentTarget as HTMLElement).dataset.day,
+										(e.currentTarget as HTMLElement).dataset.time,
 									);
 								});
-								target!.appendChild(addDOM!);
+								target.appendChild(addDOM);
 							});
 							return;
 						} else return;
-						addDOM!.addEventListener("click", (e) => {
+						addDOM.addEventListener("click", (e) => {
 							showScheduleDialog(
-								(e.currentTarget as HTMLElement).dataset.day!,
-								(e.currentTarget as HTMLElement).dataset.time!,
+								(e.currentTarget as HTMLElement).dataset.day,
+								(e.currentTarget as HTMLElement).dataset.time,
 							);
 						});
-						target!.appendChild(addDOM!);
+						target.appendChild(addDOM);
 					});
 				} catch (error) {
 					console.error("Failed to load schedules:", error);
@@ -419,8 +494,8 @@ chrome.storage.local.get("options", async (raw) => {
 		cancelButton.classList.add("schedule-dialog-btn");
 		cancelButton.value = "キャンセル";
 		cancelButton.addEventListener("click", () => {
-			document.querySelector(".schedule-dialog")!.remove();
-			document.querySelector(".schedule-dialog-overlay")!.remove();
+			document.querySelector(".schedule-dialog")?.remove();
+			document.querySelector(".schedule-dialog-overlay")?.remove();
 		});
 		buttons.appendChild(cancelButton);
 		const deleteButton = document.createElement("input");
@@ -430,8 +505,8 @@ chrome.storage.local.get("options", async (raw) => {
 		deleteButton.addEventListener("click", async () => {
 			try {
 				await scheduleDB.deleteSchedule(day, time);
-				document.querySelector(".schedule-dialog")!.remove();
-				document.querySelector(".schedule-dialog-overlay")!.remove();
+				document.querySelector(".schedule-dialog")?.remove();
+				document.querySelector(".schedule-dialog-overlay")?.remove();
 				window.location.reload();
 			} catch (error) {
 				console.error("Failed to delete schedule:", error);
@@ -453,7 +528,12 @@ chrome.storage.local.get("options", async (raw) => {
 		document.body.appendChild(el2);
 	}
 
-	async function showScheduleDialog(day: string, time: string) {
+	async function showScheduleDialog(day?: string, time?: string) {
+		if (!day || !time) {
+			console.error("Day or time is missing");
+			return;
+		}
+
 		const el = document.createElement("div");
 		el.tabIndex = -1;
 		el.role = "dialog";
@@ -477,8 +557,8 @@ chrome.storage.local.get("options", async (raw) => {
 
 		try {
 			const scheduleData = await scheduleDB.getSchedule(
-				parseInt(day),
-				parseInt(time),
+				parseInt(day, 10),
+				parseInt(time, 10),
 			);
 
 			if (!scheduleData) {
@@ -531,11 +611,11 @@ chrome.storage.local.get("options", async (raw) => {
 			deleteButton.classList.add("schedule-dialog-btn");
 			deleteButton.value = "この予定を削除";
 			deleteButton.addEventListener("click", () => {
-				document.querySelector(".schedule-dialog")!.remove();
-				document.querySelector(".schedule-dialog-overlay")!.remove();
+				document.querySelector(".schedule-dialog")?.remove();
+				document.querySelector(".schedule-dialog-overlay")?.remove();
 				showScheduleDeleteDialog(
-					parseInt(day),
-					parseInt(time),
+					parseInt(day, 10),
+					parseInt(time, 10),
 					scheduleData.title,
 				);
 			});
@@ -545,8 +625,8 @@ chrome.storage.local.get("options", async (raw) => {
 			closeButton.classList.add("schedule-dialog-btn");
 			closeButton.value = "閉じる";
 			closeButton.addEventListener("click", () => {
-				document.querySelector(".schedule-dialog")!.remove();
-				document.querySelector(".schedule-dialog-overlay")!.remove();
+				document.querySelector(".schedule-dialog")?.remove();
+				document.querySelector(".schedule-dialog-overlay")?.remove();
 			});
 			buttons.appendChild(closeButton);
 			content.appendChild(buttons);
@@ -945,13 +1025,13 @@ chrome.storage.local.get("options", async (raw) => {
 			// サイドメニューを隠す
 			if (options.sideMenu) {
 				sideMenu.classList.add("sidemenu-close");
-				document.querySelector("#pageMain")!.classList.add("sidemenu-hide");
+				document.querySelector("#pageMain")?.classList.add("sidemenu-hide");
 				document
-					.querySelector("#sidemenuOpen")!
-					.classList.remove("sidemenu-open");
+					.querySelector("#sidemenuOpen")
+					?.classList.remove("sidemenu-open");
 				document
-					.querySelector("#sidemenuOpen")!
-					.setAttribute("aria-expanded", "false");
+					.querySelector("#sidemenuOpen")
+					?.setAttribute("aria-expanded", "false");
 			}
 		}
 	}
@@ -967,10 +1047,10 @@ chrome.storage.local.get("options", async (raw) => {
 			if (emgHeader != null && options.noticeFold) {
 				emgHeaderFlag = true;
 				emgHeader.classList.add("noticeFold");
-				document.querySelector("#emgInformation")!.classList.add("noticeFold");
+				document.querySelector("#emgInformation")?.classList.add("noticeFold");
 				emgHeader.addEventListener("click", () => {
 					const emgInformation = document.querySelector("#emgInformation");
-					emgInformation!.classList.toggle("emgActive");
+					emgInformation?.classList.toggle("emgActive");
 					emgHeader.classList.toggle("emgActive");
 				});
 			}
@@ -988,10 +1068,10 @@ chrome.storage.local.get("options", async (raw) => {
 			if (impHeader != null && options.noticeFold) {
 				impHeaderFlag = true;
 				impHeader.classList.add("noticeFold");
-				document.querySelector("#impInformation")!.classList.add("noticeFold");
+				document.querySelector("#impInformation")?.classList.add("noticeFold");
 				impHeader.addEventListener("click", () => {
 					const impInformation = document.querySelector("#impInformation");
-					impInformation!.classList.toggle("impActive");
+					impInformation?.classList.toggle("impActive");
 					impHeader.classList.toggle("impActive");
 				});
 			}
@@ -1032,7 +1112,7 @@ chrome.storage.local.get("options", async (raw) => {
 				);
 				header != null
 					? header.appendChild(timetableButton)
-					: header2!.before(timetableButton);
+					: header2?.before(timetableButton);
 			}
 
 			// 「設定」ボタンの追加
@@ -1054,7 +1134,7 @@ chrome.storage.local.get("options", async (raw) => {
 			);
 			header != null
 				? header.appendChild(settingsButton)
-				: header2!.before(settingsButton);
+				: header2?.before(settingsButton);
 
 			// 設定ボタンのクリックイベント
 			document
@@ -1080,7 +1160,7 @@ chrome.storage.local.get("options", async (raw) => {
 				);
 				otherCourses.forEach((course) => {
 					const courseName = course.querySelector(".timetable-course-top-btn");
-					if (courseName!.textContent!.includes("ワークルール")) {
+					if (courseName?.textContent?.includes("ワークルール")) {
 						(course as HTMLElement).style.display = "none";
 					}
 				});
@@ -1111,8 +1191,8 @@ chrome.storage.local.get("options", async (raw) => {
 					showAddScheduleModal();
 				});
 				const timetableTitle = timetableBar.querySelector(".timetable-title");
-				timetableTitle!.classList.add("addSchedule");
-				timetableTitle!.appendChild(addButton);
+				timetableTitle?.classList.add("addSchedule");
+				timetableTitle?.appendChild(addButton);
 			}
 		}
 	}
@@ -1131,13 +1211,14 @@ chrome.storage.local.get("options", async (raw) => {
 					.then((data) => {
 						const taskDOM = new DOMParser().parseFromString(data, "text/html");
 						const taskTable = taskDOM.querySelector(".block.clearfix");
-						taskTable!
+						if (taskTable == null) return;
+						taskTable
 							.querySelectorAll(
 								".contents-display-flex.contents-display-flex-exchange-sp.sortBlock.result_list_line",
 							)
 							.forEach((task) => {
 								if (
-									task.querySelector(".contents-hidden.status")!.textContent ===
+									task.querySelector(".contents-hidden.status")?.textContent ===
 										"1" &&
 									options.taskListSubmitted
 								)
@@ -1145,7 +1226,7 @@ chrome.storage.local.get("options", async (raw) => {
 							});
 						const taskTableWrapper = document.createElement("div");
 						taskTableWrapper.classList.add("task-table-wrapper");
-						taskTableWrapper.appendChild(taskTable!);
+						taskTableWrapper.appendChild(taskTable);
 						selectTimetable.before(taskTableWrapper);
 					});
 			}
@@ -1182,7 +1263,8 @@ chrome.storage.local.get("options", async (raw) => {
 
 			// ヘッダーの名前を削除
 			if (options.headerName) {
-				(headerName ?? headerName2!).classList.add("page-head-userinfo-hide");
+				headerName?.classList.add("page-head-userinfo-hide");
+				headerName2?.classList.add("page-head-userinfo-hide");
 			}
 		}
 	}
