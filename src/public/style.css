@@ -1,3 +1,21 @@
+/* サイドメニューを隠す場合のスタイル（条件付き適用） */
+body.utol-hide-sidemenu #sidemenu {
+  transform: translateX(-100%) !important;
+  transition: transform 0.3s ease !important;
+}
+
+body.utol-hide-sidemenu #pageMain {
+  left: 0 !important;
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transition: all 0.3s ease !important;
+}
+
+body.utol-hide-sidemenu #sidemenuOpen {
+  display: block !important; /* または inline-block など、元の値に合わせる */
+}
+
 .darkmode-layer, .darkmode-toggle {
   z-index: 10000;
 }
@@ -121,6 +139,40 @@ button.darkmode-toggle {
   color: black !important;
 }
 
+/* お知らせをたたむ（フラッシュ防止用、body.utol-fold-noticesがある場合のみ適用） */
+body.utol-fold-notices .impHeader,
+body.utol-fold-notices .emgHeader {
+  position: relative !important;
+}
+
+body.utol-fold-notices .impHeader:after,
+body.utol-fold-notices .emgHeader:after {
+  content: "";
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  transform: rotate(135deg) translateY(5px);
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transition: transform 0.4s;
+}
+
+body.utol-fold-notices #impInformation,
+body.utol-fold-notices #emgInformation {
+  opacity: 0;
+  height: 0;
+  transition: opacity 0s, height 0s;
+}
+
+body.utol-fold-notices #impInformation .imp_subblock_contents,
+body.utol-fold-notices #emgInformation .emg_subblock_contents {
+  display: none;
+}
+
+/* 既存のnoticeFoldクラスベースのスタイル（互換性のため残す） */
 .noticeFold.impHeader,
 .noticeFold.emgHeader {
   position: relative !important;
@@ -291,11 +343,28 @@ button.darkmode-toggle {
   word-break: break-word;
 }
 
+
+/* ページトップボタンを隠す（フラッシュ防止用） */
+body.utol-hide-page-top-btn .page-top-btn {
+  display: none !important;
+}
+
 .page-top-btn-hide {
   display: none !important;
 }
 
+/* 時間割アイコンを隠す（フラッシュ防止用） */
+body.utol-hide-timetable-icon .timetable-icon {
+  display: none !important;
+}
+
 .timetable-icon-hide {
+  display: none !important;
+}
+
+
+/* ヘッダーの名前を隠す（フラッシュ防止用） */
+body.utol-hide-header-name .page-head-userinfo {
   display: none !important;
 }
 

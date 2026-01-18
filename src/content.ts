@@ -82,6 +82,31 @@ chrome.storage.local.get("options", async (raw) => {
 	chrome.storage.local.set({ options: optionsToStorage(options) });
 	console.log(options);
 
+	// サイドメニューを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
+	if (options.sideMenu && document.body) {
+		document.body.classList.add("utol-hide-sidemenu");
+	}
+
+	// お知らせをたたむ設定の場合、即座にクラスを追加（フラッシュ防止）
+	if (options.noticeFold && document.body) {
+		document.body.classList.add("utol-fold-notices");
+	}
+
+	// 時間割アイコンを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
+	if (options.addSchedule && document.body) {
+		document.body.classList.add("utol-hide-timetable-icon");
+	}
+
+	// ページトップボタンを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
+	if (options.timetableButton && document.body) {
+		document.body.classList.add("utol-hide-page-top-btn");
+	}
+
+	// ヘッダーの名前を隠す設定の場合、即座にクラスを追加（フラッシュ防止）
+	if (options.headerName && document.body) {
+		document.body.classList.add("utol-hide-header-name");
+	}
+
 	// Initialize IndexedDB and migrate data
 	try {
 		await scheduleDB.init();
@@ -1015,23 +1040,23 @@ chrome.storage.local.get("options", async (raw) => {
 
 	function sideMenuLoaded() {
 		// 変更を加える要素
-		const sideMenu = document.querySelector("#sidemenu");
-		const pageMain = document.querySelector("#pageMain");
+		const sideMenu = document.querySelector("#sidemenu") as HTMLElement | null;
+		const pageMain = document.querySelector("#pageMain") as HTMLElement | null;
+		const sidemenuOpen = document.querySelector(
+			"#sidemenuOpen",
+		) as HTMLElement | null;
 
 		if (sideMenu != null && pageMain != null) {
 			clearInterval(sideMenuInitCheckTimer);
 			sideMenuFlag = true;
+			// クラスは既に追加済み（chrome.storage.local.getのコールバック内で実行）
 
-			// サイドメニューを隠す
-			if (options.sideMenu) {
-				sideMenu.classList.add("sidemenu-close");
-				document.querySelector("#pageMain")?.classList.add("sidemenu-hide");
-				document
-					.querySelector("#sidemenuOpen")
-					?.classList.remove("sidemenu-open");
-				document
-					.querySelector("#sidemenuOpen")
-					?.setAttribute("aria-expanded", "false");
+			// ハンバーガーアイコンをクリックしたら、一時的にサイドメニューを表示できるようにする
+			if (options.sideMenu && sidemenuOpen) {
+				sidemenuOpen.addEventListener("click", () => {
+					// 拡張機能のクラスを削除して、UTOL本体のメニュー開閉処理に任せる
+					document.body.classList.remove("utol-hide-sidemenu");
+				});
 			}
 		}
 	}
