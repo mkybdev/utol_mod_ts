@@ -940,7 +940,7 @@ chrome.storage.local.get("options", async (raw) => {
 				${settingsItem("taskListSubmitted", "課題一覧の提出済課題を非表示")}
 				${settingsItem("addSchedule", "予定の追加機能")}
 				${settingsItem("deleteWorkRule", "「ワークルール入門」の削除")}
-				${settingsItem("hidePageTopButton", "ページトップボタンを非表示")}
+				${settingsItem("hidePageTopButton", "Top ボタンを非表示")}
 				${settingsItem("hideTimetableIcon", "不要なアイコンを非表示")}
 				<div class="settings-item settings-section-header">
 					試験的機能
