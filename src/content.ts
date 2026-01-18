@@ -2,7 +2,6 @@
 import { html, render } from "lit-html";
 import "./public/style.css";
 
-import Darkmode from "darkmode-js";
 import { scheduleDB } from "./scheduleDB";
 
 function normalizeUrl(url: string | null): string {
@@ -27,7 +26,6 @@ type Options = {
 	pdfDialog: boolean;
 	timetableButton: boolean;
 	headerName: boolean;
-	themeButton: boolean;
 	noticeFold: boolean;
 	taskList: boolean;
 	taskListSubmitted: boolean;
@@ -69,7 +67,6 @@ chrome.storage.local.get("options", async (raw) => {
 		pdfDialog: true,
 		timetableButton: true,
 		headerName: true,
-		themeButton: true,
 		noticeFold: true,
 		taskList: true,
 		taskListSubmitted: true,
@@ -151,17 +148,6 @@ chrome.storage.local.get("options", async (raw) => {
 
 	document.onreadystatechange = () => {
 		if (document.readyState === "complete") {
-			if (options.themeButton) {
-				const options = {
-					time: "0s",
-					mixColor: "#fff",
-					backgroundColor: "#fff",
-					buttonColorDark: "#100f2c",
-					buttonColorLight: "#fff",
-					label: "&#x262f;",
-				};
-				new Darkmode(options).showWidget();
-			}
 			clearAll();
 			if (!sideMenuFlag) sideMenuLoaded();
 			if (!headerFlag) headerLoaded();
@@ -958,7 +944,6 @@ chrome.storage.local.get("options", async (raw) => {
 				${settingsItem("pdfDialog", "PDFダイアログの非表示")}
 				${settingsItem("timetableButton", "時間割ボタンの表示")}
 				${settingsItem("headerName", "名前の非表示")}
-				${settingsItem("themeButton", "テーマ切替ボタンの表示")}
 				${settingsItem("noticeFold", "「お知らせ」を折りたたむ")}
 				${settingsItem("taskList", "課題一覧を表示")}
 				${settingsItem("taskListSubmitted", "課題一覧の提出済課題を非表示")}

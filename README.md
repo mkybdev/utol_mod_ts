@@ -36,12 +36,6 @@ UTOL のさまざまなカスタマイズが可能です。\
 
   - ヘッダーに表示される名前を非表示にし、スクリーンショットへの映り込み等を防ぎます。
 
-- **ダークモード**
-
-  - ダークモード／ライトモードの切り替えボタンが表示され、テーマの切り替えが可能になります。
-
-  - 色反転によるダークモードのため、一部の画像やアイコンが正常に表示されない場合があります。
-
 ### 時間割ページで適用される機能
 
 <div align="center" style="margin: 30px;">
@@ -128,4 +122,4 @@ npm run build # Generating "dist" directory: the extension file
 
 ## Powered By
 
-TypeScript, Vite, [Darkmode.js](https://github.com/sandoche/Darkmode.js), [ICOOON MONO](https://icooon-mono.com/)
+TypeScript, Vite, [ICOOON MONO](https://icooon-mono.com/)
