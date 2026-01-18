@@ -34,6 +34,8 @@ type Options = {
 	addSchedule: boolean;
 	deleteWorkRule: boolean;
 	autoLogin: boolean;
+	hidePageTopButton: boolean;
+	hideTimetableIcon: boolean;
 };
 
 type OptionsStorage = {
@@ -74,6 +76,8 @@ chrome.storage.local.get("options", async (raw) => {
 		addSchedule: true,
 		deleteWorkRule: true,
 		autoLogin: false,
+		hidePageTopButton: false,
+		hideTimetableIcon: false,
 	};
 	const options: Options = {
 		...initialOptions,
@@ -93,12 +97,12 @@ chrome.storage.local.get("options", async (raw) => {
 	}
 
 	// 時間割アイコンを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
-	if (options.addSchedule && document.body) {
+	if (options.hideTimetableIcon && document.body) {
 		document.body.classList.add("utol-hide-timetable-icon");
 	}
 
 	// ページトップボタンを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
-	if (options.timetableButton && document.body) {
+	if (options.hidePageTopButton && document.body) {
 		document.body.classList.add("utol-hide-page-top-btn");
 	}
 
@@ -960,6 +964,8 @@ chrome.storage.local.get("options", async (raw) => {
 				${settingsItem("taskListSubmitted", "課題一覧の提出済課題を非表示")}
 				${settingsItem("addSchedule", "予定の追加機能")}
 				${settingsItem("deleteWorkRule", "「ワークルール入門」の削除")}
+				${settingsItem("hidePageTopButton", "ページトップボタンを非表示")}
+				${settingsItem("hideTimetableIcon", "不要なアイコンを非表示")}
 				<div class="settings-item settings-section-header">
 					試験的機能
 				</div>
@@ -1203,10 +1209,12 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(timetableBarInitCheckTimer);
 			timetableBarFlag = true;
 			if (timetableBar != null && options.addSchedule) {
-				const timetableIcon = timetableBar.querySelector(".timetable-icon");
-				// アイコンを非表示
-				if (timetableIcon != null)
-					timetableIcon.classList.add("timetable-icon-hide");
+				// 時間割アイコンを非表示（新しいオプションを使用）
+				if (options.hideTimetableIcon) {
+					const timetableIcon = timetableBar.querySelector(".timetable-icon");
+					if (timetableIcon != null)
+						timetableIcon.classList.add("timetable-icon-hide");
+				}
 				// 「予定を追加」ボタンを表示
 				const addButton = document.createElement("input");
 				addButton.type = "button";
@@ -1216,7 +1224,9 @@ chrome.storage.local.get("options", async (raw) => {
 					showAddScheduleModal();
 				});
 				const timetableTitle = timetableBar.querySelector(".timetable-title");
-				timetableTitle?.classList.add("addSchedule");
+				if (options.hideTimetableIcon) {
+					timetableTitle?.classList.add("noTimetableIcon");
+				}
 				timetableTitle?.appendChild(addButton);
 			}
 		}
@@ -1266,8 +1276,8 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(pageTopButtonInitCheckTimer);
 			pageTopButtonFlag = true;
 
-			// ページトップボタンを削除
-			if (options.timetableButton) {
+			// ページトップボタンを削除（新しいオプションを使用）
+			if (options.hidePageTopButton) {
 				pageTopButton.classList.add("page-top-btn-hide");
 			}
 		}

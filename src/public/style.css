@@ -239,7 +239,7 @@ body.utol-fold-notices #emgInformation .emg_subblock_contents {
   margin-bottom: 40px;
 }
 
-.addSchedule.timetable-title {
+.timetable-title.noTimetableIcon {
   padding-left: 30px !important;
 }
 
