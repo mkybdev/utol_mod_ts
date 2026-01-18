@@ -253,21 +253,22 @@ chrome.storage.local.get("options", async (raw) => {
 							.querySelector("option[selected]") as HTMLOptionElement
 					).value,
 				);
-		const selectedSemester = isTimetableDisplay
-			? (
-					document.querySelector(
-						"#kikanCd option[selected]",
-					) as HTMLSelectElement
-				).textContent
-			: SEMESTERS[
-					Number(
-						(
-							document
-								.getElementsByName("selectMonth")[0]
-								.querySelector("option[selected]") as HTMLOptionElement
-						).value,
-					) - 1
-				];
+		const selectedSemester =
+			(isTimetableDisplay
+				? (
+						document.querySelector(
+							"#kikanCd option[selected]",
+						) as HTMLSelectElement
+					).textContent
+				: SEMESTERS[
+						Number(
+							(
+								document
+									.getElementsByName("selectMonth")[0]
+									.querySelector("option[selected]") as HTMLOptionElement
+							).value,
+						) - 1
+					]) ?? "";
 		return {
 			isTimetableDisplay,
 			isWeeklyDisplay,
