@@ -1,21 +1,3 @@
-/* サイドメニューを隠す場合のスタイル（条件付き適用） */
-body.utol-hide-sidemenu #sidemenu {
-  transform: translateX(-100%) !important;
-  transition: transform 0.3s ease !important;
-}
-
-body.utol-hide-sidemenu #pageMain {
-  left: 0 !important;
-  margin-left: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  transition: all 0.3s ease !important;
-}
-
-body.utol-hide-sidemenu #sidemenuOpen {
-  display: block !important; /* または inline-block など、元の値に合わせる */
-}
-
 /* お知らせをたたむ（フラッシュ防止用、body.utol-fold-noticesがある場合のみ適用） */
 body.utol-fold-notices .impHeader,
 body.utol-fold-notices .emgHeader {

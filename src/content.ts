@@ -83,11 +83,6 @@ chrome.storage.local.get("options", async (raw) => {
 	chrome.storage.local.set({ options: optionsToStorage(options) });
 	console.log(options);
 
-	// サイドメニューを隠す設定の場合、即座にクラスを追加（フラッシュ防止）
-	if (options.sideMenu && document.body) {
-		document.body.classList.add("utol-hide-sidemenu");
-	}
-
 	// お知らせをたたむ設定の場合、即座にクラスを追加（フラッシュ防止）
 	if (options.noticeFold && document.body) {
 		document.body.classList.add("utol-fold-notices");
@@ -1029,21 +1024,18 @@ chrome.storage.local.get("options", async (raw) => {
 		// 変更を加える要素
 		const sideMenu = document.querySelector("#sidemenu") as HTMLElement | null;
 		const pageMain = document.querySelector("#pageMain") as HTMLElement | null;
-		const sidemenuOpen = document.querySelector(
-			"#sidemenuOpen",
-		) as HTMLElement | null;
 
 		if (sideMenu != null && pageMain != null) {
 			clearInterval(sideMenuInitCheckTimer);
 			sideMenuFlag = true;
-			// クラスは既に追加済み（chrome.storage.local.getのコールバック内で実行）
 
-			// ハンバーガーアイコンをクリックしたら、一時的にサイドメニューを表示できるようにする
-			if (options.sideMenu && sidemenuOpen) {
-				sidemenuOpen.addEventListener("click", () => {
-					// 拡張機能のクラスを削除して、UTOL本体のメニュー開閉処理に任せる
-					document.body.classList.remove("utol-hide-sidemenu");
-				});
+			// サイドメニューを隠す
+			if (options.sideMenu) {
+				sideMenu.classList.add("sidemenu-close");
+				pageMain.classList.add("sidemenu-hide");
+				const sidemenuOpen = document.querySelector("#sidemenuOpen");
+				sidemenuOpen?.classList.remove("sidemenu-open");
+				sidemenuOpen?.setAttribute("aria-expanded", "false");
 			}
 		}
 	}
