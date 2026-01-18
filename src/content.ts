@@ -22,22 +22,64 @@ function normalizeUrl(url: string | null): string {
 	return trimmedUrl;
 }
 
+type Options = {
+	sideMenu: boolean;
+	pdfDialog: boolean;
+	timetableButton: boolean;
+	headerName: boolean;
+	themeButton: boolean;
+	noticeFold: boolean;
+	taskList: boolean;
+	taskListSubmitted: boolean;
+	addSchedule: boolean;
+	deleteWorkRule: boolean;
+	autoLogin: boolean;
+};
+
+type OptionsStorage = {
+	[K in keyof Options]: "0" | "1"; // 0: false, 1: true
+};
+
+function storageToOptions(storage: Partial<OptionsStorage>): Partial<Options> {
+	const result: Partial<Options> = {};
+	for (const key in storage) {
+		if (Object.hasOwn(storage, key)) {
+			result[key as keyof Options] =
+				storage[key as keyof OptionsStorage] === "1";
+		}
+	}
+	return result;
+}
+
+function optionsToStorage(options: Options): OptionsStorage {
+	const result: Partial<OptionsStorage> = {};
+	for (const key in options) {
+		if (Object.hasOwn(options, key)) {
+			result[key as keyof Options] = options[key as keyof Options] ? "1" : "0";
+		}
+	}
+	return result as OptionsStorage;
+}
+
 chrome.storage.local.get("options", async (raw) => {
-	const initialOptions = {
-		sideMenu: "0",
-		pdfDialog: "0",
-		timetableButton: "0",
-		headerName: "0",
-		themeButton: "0",
-		noticeFold: "0",
-		taskList: "0",
-		taskListSubmitted: "0",
-		addSchedule: "0",
-		deleteWorkRule: "0",
-		autoLogin: "1",
+	const initialOptions: Options = {
+		sideMenu: true,
+		pdfDialog: true,
+		timetableButton: true,
+		headerName: true,
+		themeButton: true,
+		noticeFold: true,
+		taskList: true,
+		taskListSubmitted: true,
+		addSchedule: true,
+		deleteWorkRule: true,
+		autoLogin: false,
 	};
-	const options = { ...initialOptions, ...(raw.options ?? {}) };
-	chrome.storage.local.set({ options: options });
+	const options: Options = {
+		...initialOptions,
+		...storageToOptions((raw.options as Partial<OptionsStorage>) ?? {}),
+	};
+	chrome.storage.local.set({ options: optionsToStorage(options) });
 	console.log(options);
 
 	// Initialize IndexedDB and migrate data
@@ -48,7 +90,7 @@ chrome.storage.local.get("options", async (raw) => {
 		console.error("Failed to initialize scheduleDB:", error);
 	}
 
-	if (options.autoLogin === "0" && window.location.pathname.includes("login")) {
+	if (options.autoLogin && window.location.pathname.includes("login")) {
 		window.location.href =
 			"https://utol.ecc.u-tokyo.ac.jp/saml/login?disco=true";
 	}
@@ -80,7 +122,7 @@ chrome.storage.local.get("options", async (raw) => {
 
 	document.onreadystatechange = () => {
 		if (document.readyState === "complete") {
-			if (options.themeButton === "0") {
+			if (options.themeButton) {
 				const options = {
 					time: "0s",
 					mixColor: "#fff",
@@ -102,7 +144,7 @@ chrome.storage.local.get("options", async (raw) => {
 			if (!impHeaderFlag) impHeaderLoaded();
 			if (!pageTopButtonFlag) pageTopButtonLoaded();
 			if (!headerNameFlag) headerNameLoaded();
-			if (options.pdfDialog === "0") preventPdfDialog();
+			if (options.pdfDialog) preventPdfDialog();
 		}
 	};
 
@@ -161,7 +203,7 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(timetableContentsInitCheckTimer);
 			showScheduleFlag = true;
 			// 登録されているスケジュールを表示
-			if (timetableContents != null && options.addSchedule === "0") {
+			if (timetableContents != null && options.addSchedule) {
 				const semester = [
 					"A2",
 					"W",
@@ -591,7 +633,8 @@ chrome.storage.local.get("options", async (raw) => {
 		// Content area
 		const content = document.createElement("div");
 		content.classList.add("schedule-dialog-content", "add-schedule-form");
-		content.innerHTML = `
+		render(
+			html`
 			<div class="schedule-form-row">
 				<label class="schedule-form-label" for="modal-scheduleTitle">タイトル</label>
 				<input type="text" id="modal-scheduleTitle" class="schedule-form-input" maxlength="50" />
@@ -642,7 +685,9 @@ chrome.storage.local.get("options", async (raw) => {
 				<label class="schedule-form-label" for="modal-scheduleUrl">URL (任意)</label>
 				<input type="text" id="modal-scheduleUrl" class="schedule-form-input" placeholder="https://example.com" />
 			</div>
-		`;
+		`,
+			content,
+		);
 
 		// Populate year dropdown
 		const yearSelect = content.querySelector(
@@ -665,7 +710,7 @@ chrome.storage.local.get("options", async (raw) => {
 		const buttons = document.createElement("div");
 		buttons.setAttribute(
 			"style",
-			"display: flex; justify-content: center; margin-top: 15px; gap: 10px;",
+			"display: flex; justify-content: center; margin-top: 15px; gap: 15px; align-self: flex-end;",
 		);
 
 		const cancelButton = document.createElement("input");
@@ -745,6 +790,149 @@ chrome.storage.local.get("options", async (raw) => {
 		document.body.appendChild(modal);
 	}
 
+	function showSettingsModal() {
+		// Create modal overlay
+		const overlay = document.createElement("div");
+		overlay.classList.add(
+			"ui-widget-overlay",
+			"ui-front",
+			"settings-dialog-overlay",
+		);
+		overlay.style.zIndex = "100";
+
+		// Create modal dialog
+		const modal = document.createElement("div");
+		modal.tabIndex = -1;
+		modal.role = "dialog";
+		modal.classList.add(
+			"ui-dialog",
+			"ui-corner-all",
+			"ui-widget",
+			"ui-widget-content",
+			"ui-front",
+			"settings-dialog",
+			"settings-modal",
+		);
+		modal.setAttribute("aria-describedby", "settings_dialog");
+		modal.setAttribute("aria-labelledby", "ui-id-settings");
+
+		// Title bar
+		const titleBar = document.createElement("div");
+		titleBar.classList.add("settings-dialog-title");
+		titleBar.setAttribute(
+			"style",
+			"margin: 7.5px 15px; padding: 7.5px 0; font-size: 15px; text-align: center; font-weight: bold; background-color: #96c1ea;",
+		);
+		titleBar.innerHTML = "設定";
+
+		// Content area
+		const content = document.createElement("div");
+		content.classList.add("settings-dialog-content", "settings-form");
+		const settingsItem = (name: string, label: string) => {
+			return html`
+				<div class="settings-item">
+					<div class="settings-item-title">${label}</div>
+					<div class="settings-item-content">
+						<input type="checkbox" class="settings-checkbox" name="${name}">
+					</div>
+				</div>
+			`;
+		};
+
+		render(
+			html`
+			<div class="settings-item-list">
+				<div class="settings-item settings-section-header">
+					基本機能
+				</div>
+				${settingsItem("sideMenu", "サイドメニューの非表示")}
+				${settingsItem("pdfDialog", "PDFダイアログの非表示")}
+				${settingsItem("timetableButton", "時間割ボタンの表示")}
+				${settingsItem("headerName", "名前の非表示")}
+				${settingsItem("themeButton", "テーマ切替ボタンの表示")}
+				${settingsItem("noticeFold", "「お知らせ」を折りたたむ")}
+				${settingsItem("taskList", "課題一覧を表示")}
+				${settingsItem("taskListSubmitted", "課題一覧の提出済課題を非表示")}
+				${settingsItem("addSchedule", "予定の追加機能")}
+				${settingsItem("deleteWorkRule", "「ワークルール入門」の削除")}
+				<div class="settings-item settings-section-header">
+					試験的機能
+				</div>
+				${settingsItem("autoLogin", "自動ログイン")}
+			</div>
+		`,
+			content,
+		);
+		// Load current settings
+		chrome.storage.local.get("options", (raw) => {
+			const storedOptions = (raw.options as Partial<OptionsStorage>) ?? {};
+			content.querySelectorAll(".settings-checkbox").forEach((checkbox) => {
+				const _checkbox = checkbox as HTMLInputElement;
+				const name = _checkbox.name as keyof Options;
+				const value = storedOptions[name]; // 0: false, 1: true
+				_checkbox.checked = value === "1";
+			});
+		});
+
+		// Buttons
+		const buttons = document.createElement("div");
+		buttons.setAttribute(
+			"style",
+			"display: flex; justify-content: center; margin-top: 15px; gap: 15px; align-self: flex-end;",
+		);
+
+		const cancelButton = document.createElement("input");
+		cancelButton.type = "button";
+		cancelButton.classList.add("settings-dialog-btn");
+		cancelButton.value = "キャンセル";
+		cancelButton.addEventListener("click", () => {
+			modal.remove();
+			overlay.remove();
+		});
+
+		const saveButton = document.createElement("input");
+		saveButton.type = "button";
+		saveButton.classList.add("settings-dialog-btn");
+		saveButton.value = "保存";
+		saveButton.addEventListener("click", () => {
+			const updatedOptions: Partial<Options> = {};
+			content.querySelectorAll(".settings-checkbox").forEach((checkbox) => {
+				const _checkbox = checkbox as HTMLInputElement;
+				const name = _checkbox.name as keyof Options;
+				updatedOptions[name] = _checkbox.checked;
+			});
+
+			chrome.storage.local.get("options", (raw) => {
+				const currentOptions: Options = {
+					...initialOptions,
+					...storageToOptions((raw.options as Partial<OptionsStorage>) ?? {}),
+				};
+				const mergedOptions: Options = {
+					...currentOptions,
+					...updatedOptions,
+				};
+				chrome.storage.local.set(
+					{ options: optionsToStorage(mergedOptions) },
+					() => {
+						modal.remove();
+						overlay.remove();
+						window.location.reload();
+					},
+				);
+			});
+		});
+
+		buttons.appendChild(cancelButton);
+		buttons.appendChild(saveButton);
+		content.appendChild(buttons);
+
+		modal.appendChild(titleBar);
+		modal.appendChild(content);
+
+		document.body.appendChild(overlay);
+		document.body.appendChild(modal);
+	}
+
 	function sideMenuLoaded() {
 		// 変更を加える要素
 		const sideMenu = document.querySelector("#sidemenu");
@@ -755,7 +943,7 @@ chrome.storage.local.get("options", async (raw) => {
 			sideMenuFlag = true;
 
 			// サイドメニューを隠す
-			if (options.sideMenu === "0") {
+			if (options.sideMenu) {
 				sideMenu.classList.add("sidemenu-close");
 				document.querySelector("#pageMain")!.classList.add("sidemenu-hide");
 				document
@@ -776,7 +964,7 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(emgHeaderInitCheckTimer);
 			emgHeaderFlag = true;
 			// 「緊急のお知らせ」をたたむ
-			if (emgHeader != null && options.noticeFold === "0") {
+			if (emgHeader != null && options.noticeFold) {
 				emgHeaderFlag = true;
 				emgHeader.classList.add("noticeFold");
 				document.querySelector("#emgInformation")!.classList.add("noticeFold");
@@ -797,7 +985,7 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(impHeaderInitCheckTimer);
 			impHeaderFlag = true;
 			// 「重要なお知らせ」をたたむ
-			if (impHeader != null && options.noticeFold === "0") {
+			if (impHeader != null && options.noticeFold) {
 				impHeaderFlag = true;
 				impHeader.classList.add("noticeFold");
 				document.querySelector("#impInformation")!.classList.add("noticeFold");
@@ -822,7 +1010,7 @@ chrome.storage.local.get("options", async (raw) => {
 			headerFlag = true;
 
 			// 「時間割」ボタンの追加
-			if (options.timetableButton === "0") {
+			if (options.timetableButton) {
 				const timetableIconURL = chrome.runtime.getURL(
 					"images/head_icon_timetable.png",
 				);
@@ -830,13 +1018,51 @@ chrome.storage.local.get("options", async (raw) => {
 					header != null ? "li" : "div",
 				);
 				timetableButton.classList.add(
-					header != null ? "header-timetable" : "header-timetable2",
+					...(header == null ? ["header-timetable2"] : []),
+					"header-timetable",
 				);
-				timetableButton.innerHTML = `<a href="https://utol.ecc.u-tokyo.ac.jp/lms/timetable?selectDisplayMode=0" class="btn-header-timetable"><img class="header-img" src="${timetableIconURL}" alt="時間割"></a>`;
+				render(
+					html`
+						<a href="https://utol.ecc.u-tokyo.ac.jp/lms/timetable?selectDisplayMode=0" class="btn-header-info">
+							<span class="header-new-icon" style="background-color: transparent; border-color: transparent;"></span>
+							<img class="header-img" src="${timetableIconURL}" alt="時間割">
+						</a>
+					`,
+					timetableButton,
+				);
 				header != null
 					? header.appendChild(timetableButton)
 					: header2!.before(timetableButton);
 			}
+
+			// 「設定」ボタンの追加
+			const settingsButton = document.createElement(
+				header != null ? "li" : "div",
+			);
+			settingsButton.classList.add(
+				...(header == null ? ["header-timetable2"] : []),
+				"header-timetable",
+			);
+			render(
+				html`
+					<a href="javascript:void(0)" class="btn-header-info btn-header-settings">
+						<span class="header-new-icon" style="background-color: transparent; border-color: transparent;"></span>
+						<img class="header-img" src="${chrome.runtime.getURL("images/utol_mod_logo.png")}" alt="設定">
+					</a>
+				`,
+				settingsButton,
+			);
+			header != null
+				? header.appendChild(settingsButton)
+				: header2!.before(settingsButton);
+
+			// 設定ボタンのクリックイベント
+			document
+				.querySelector(".btn-header-settings")
+				?.addEventListener("click", (e) => {
+					e.preventDefault();
+					showSettingsModal();
+				});
 		}
 	}
 
@@ -848,7 +1074,7 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(otherCourseInitCheckTimer);
 			otherCourseFlag = true;
 			// 「ワークルール〜」を非表示
-			if (otherCourse != null && options.deleteWorkRule === "0") {
+			if (otherCourse != null && options.deleteWorkRule) {
 				const otherCourses = otherCourse.querySelectorAll(
 					".div-table-cell-row",
 				);
@@ -871,7 +1097,7 @@ chrome.storage.local.get("options", async (raw) => {
 		if (!isTimetable || (isTimetable && timetableBar != null)) {
 			clearInterval(timetableBarInitCheckTimer);
 			timetableBarFlag = true;
-			if (timetableBar != null && options.addSchedule === "0") {
+			if (timetableBar != null && options.addSchedule) {
 				const timetableIcon = timetableBar.querySelector(".timetable-icon");
 				// アイコンを非表示
 				if (timetableIcon != null)
@@ -899,7 +1125,7 @@ chrome.storage.local.get("options", async (raw) => {
 			clearInterval(selectTimetableInitCheckTimer);
 			selectTimetableFlag = true;
 
-			if (options.taskList === "0") {
+			if (options.taskList) {
 				fetch("https://utol.ecc.u-tokyo.ac.jp/lms/task")
 					.then((response) => response.text())
 					.then((data) => {
@@ -913,7 +1139,7 @@ chrome.storage.local.get("options", async (raw) => {
 								if (
 									task.querySelector(".contents-hidden.status")!.textContent ===
 										"1" &&
-									options.taskListSubmitted === "0"
+									options.taskListSubmitted
 								)
 									task.classList.add("tasklist-submitted");
 							});
@@ -935,7 +1161,7 @@ chrome.storage.local.get("options", async (raw) => {
 			pageTopButtonFlag = true;
 
 			// ページトップボタンを削除
-			if (options.timetableButton === "0") {
+			if (options.timetableButton) {
 				pageTopButton.classList.add("page-top-btn-hide");
 			}
 		}
@@ -955,9 +1181,24 @@ chrome.storage.local.get("options", async (raw) => {
 			headerNameFlag = true;
 
 			// ヘッダーの名前を削除
-			if (options.headerName === "0") {
+			if (options.headerName) {
 				(headerName ?? headerName2!).classList.add("page-head-userinfo-hide");
 			}
 		}
 	}
+
+	// Listen for messages from popup
+	chrome.runtime.onMessage.addListener(
+		(
+			message: { action: string },
+			_sender: chrome.runtime.MessageSender,
+			sendResponse: (response?: unknown) => void,
+		) => {
+			if (message.action === "openSettings") {
+				showSettingsModal();
+				sendResponse({ success: true });
+			}
+			return true;
+		},
+	);
 });

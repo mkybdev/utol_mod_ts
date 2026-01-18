@@ -180,11 +180,7 @@ button.darkmode-toggle {
 }
 
 .header-timetable2 {
-  margin-left: 10px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  float: left;
+  margin-top: 14px;
 }
 
 .task-table-wrapper {
@@ -227,8 +223,11 @@ button.darkmode-toggle {
 
 .schedule-dialog {
   position: fixed !important;
-  height: auto;
+  max-height: 80%;
+  overflow-y: scroll;
   width: 50%;
+  min-width: 360px;
+  max-width: 90%;
   top: 50% !important;
   left: 50% !important;
   transform: translateX(-50%) translateY(-50%);
@@ -261,9 +260,9 @@ button.darkmode-toggle {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  margin: 10px 20px;
+  margin: 10px 5px;
   min-width: 100px;
-  padding: 7px 14px 5px;
+  padding: 7px 10px 5px;
 }
 
 .schedule-item-list {
@@ -281,14 +280,14 @@ button.darkmode-toggle {
   display: table-cell;
   padding: 9px 15px 9px 25px;
   vertical-align: middle;
-  width: 20%;
+  width: 30%;
   font-weight: bold;
 }
 
 .schedule-item-content {
   display: table-cell;
   padding: 9px 15px 15px 25px;
-  width: 80%;
+  width: 70%;
   word-break: break-word;
 }
 
@@ -342,18 +341,19 @@ button.darkmode-toggle {
 
 .schedule-form-label {
   display: table-cell;
-  padding: 9px 15px 9px 25px;
+  padding: 9px 15px;
   vertical-align: middle;
-  width: 20%;
+  width: 40%;
   font-weight: bold;
   font-size: 108%;
 }
 
 .schedule-form-input {
+  display: table-cell;
   color: #545555;
+  margin: 9px 0;
   padding: 6px 10px;
   width: 100%;
-  box-sizing: border-box;
   resize: vertical;
   font: 13px / 1.231 arial, helvetica, clean, sans-serif;
   border: 1px solid #ddd;
@@ -361,12 +361,42 @@ button.darkmode-toggle {
 
 .schedule-form-inline {
   display: table-cell;
-  padding: 9px 15px 9px 25px;
-  width: 80%;
+  margin: 9px 0;
+  width: 100%;
   word-break: break-word;
 }
 
 .schedule-form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  width: 50%;
+  line-height: 1.5em;
+  min-height: 20px;
+  text-indent: 0.01px;
+  text-overflow: ellipsis;
+  padding: 5px 1.8em 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.schedule-form-row > .schedule-form-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-modal {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.settings-form {
+  align-items: flex-start !important;
+}
+
+.settings-select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -378,11 +408,82 @@ button.darkmode-toggle {
   padding: 5px 1.8em 5px 10px;
   border: 1px solid #ddd;
   background-color: #fff;
-  margin-right: 10px;
 }
 
-.schedule-form-row > .schedule-form-inline {
-  display: flex;
+.settings-dialog {
+  position: fixed !important;
+  max-height: 80%;
+  overflow-y: scroll;
+  width: 50%;
+  min-width: 360px;
+  max-width: 90%;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 101 !important;
+}
+
+.settings-section-header {
+  border-bottom: none !important;
+  background-color: #f5f5f5;
+  margin-top: 15px;
+  padding: 15px 0 9px 15px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.settings-dialog-content {
+  margin: 0 15px 15px;
+  display: flex !important;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+}
+
+.settings-dialog-content span {
+  display: inline-block;
+  line-height: 2;
+}
+
+.settings-dialog-btn {
+  background-color: #434444;
+  border: 1px solid #3b3b3b;
+  box-shadow: 0px 1px 3px 1px #434444;
+  color: #fff;
+  transition: all 100ms 0s ease;
+  border-radius: 4px;
+  font-size: 12px;
+  min-height: 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 10px 5px;
+  min-width: 100px;
+  padding: 7px 10px 5px;
+}
+
+.settings-item-list {
+  border-top: 0px;
+  width: 100%;
+}
+
+.settings-item {
+  border-bottom: 1px solid #ddd;
+  display: table;
+  width: 100%;
+}
+
+.settings-item-title {
+  display: table-cell;
+  padding: 9px 15px 9px 25px;
+  vertical-align: middle;
+  width: 80%;
+  font-weight: bold;
+}
+
+.settings-item-content {
+  display: table-cell;
+  padding: 9px 15px 15px 25px;
+  width: 20%;
+  word-break: break-word;
 }
