@@ -73,8 +73,8 @@ chrome.storage.local.get("options", async (raw) => {
 		addSchedule: true,
 		deleteWorkRule: true,
 		autoLogin: false,
-		hidePageTopButton: false,
-		hideTimetableIcon: false,
+		hidePageTopButton: true,
+		hideTimetableIcon: true,
 	};
 	const options: Options = {
 		...initialOptions,
@@ -299,48 +299,6 @@ chrome.storage.local.get("options", async (raw) => {
 				};
 				// 時間割の表示タイプ
 				const displayMode = getSearchParams("selectDisplayMode") ?? "";
-				// const isTimetableDisplay = displayMode === "" || displayMode === "0";
-				// const weekMonthToggle = document.querySelector(
-				// 	".timetable-today-btn-area a",
-				// )?.textContent;
-				// const isWeeklyDisplay =
-				// 	displayMode === "1" && weekMonthToggle === "月表示";
-				// const isMonthlyDisplay =
-				// 	displayMode === "1" && weekMonthToggle === "週表示";
-				// // 時間割の対象期間
-				// const today = new Date();
-				// const selectedYear = (
-				// 	isTimetableDisplay
-				// 		? (document.querySelector(
-				// 				"#nendo option[selected]",
-				// 			) as HTMLSelectElement)
-				// 		: (document
-				// 				.getElementsByName("selectNendo")[0]
-				// 				.querySelector("option[selected]") as HTMLOptionElement)
-				// ).value;
-				// const selectedSemester = isTimetableDisplay
-				// 	? (
-				// 			document.querySelector(
-				// 				"#kikanCd option[selected]",
-				// 			) as HTMLSelectElement
-				// 		).textContent
-				// 	: semester[
-				// 			Number(
-				// 				(
-				// 					document
-				// 						.getElementsByName("selectMonth")[0]
-				// 						.querySelector("option[selected]") as HTMLOptionElement
-				// 				).value,
-				// 			) - 1
-				// 		];
-				// const targetPeriod = {
-				// 	year:
-				// 		selectedYear === "" ? today.getFullYear() : Number(selectedYear),
-				// 	semester:
-				// 		selectedSemester === ""
-				// 			? semester[today.getMonth()]
-				// 			: selectedSemester,
-				// };
 				const {
 					isTimetableDisplay,
 					isWeeklyDisplay,
