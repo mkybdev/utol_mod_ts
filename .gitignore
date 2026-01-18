@@ -1,11 +1,19 @@
-.vscode
-dist
-node_modules
+# Dependencies
+node_modules/
+
+# Build Output
+dist/
+.output/
+
+# System Files
 .DS_Store
-hosting
-firebase.json
-.firebaserc
-.firebase
-package-lock.json
-yarn.lock
-biome.json
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
