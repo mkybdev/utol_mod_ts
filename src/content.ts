@@ -164,34 +164,30 @@ chrome.storage.local.get("options", async (raw) => {
 	};
 
 	function preventPdfDialog() {
-		const files = document.querySelectorAll("*:has(> .link-txt.downloadFile)");
-		if (files == null) return;
-		files.forEach((file) => {
-			const fileNameDiv = file.querySelector(".fileName");
-			const objectNameDiv = file.querySelector(".objectName");
-			if (fileNameDiv != null && objectNameDiv != null) {
-				const fileName = fileNameDiv.textContent;
-				if (!fileName.includes(".pdf")) return;
-				const oldLink = file.querySelector(".link-txt.downloadFile");
-				if (oldLink == null) return;
-				const name = oldLink.textContent;
-				const objectName = objectNameDiv.textContent;
-				const reportId = (
-					document.querySelector('[name="reportId"]') as HTMLInputElement
-				).value;
-				const idnumber = (
-					document.querySelector('[name="idnumber"]') as HTMLInputElement
-				).value;
-				const newLink = document.createElement("a");
-				newLink.href = `https://utol.ecc.u-tokyo.ac.jp/lms/course/report/submission_preview/${fileName}?reportId=${reportId}&idnumber=${idnumber}&downloadFileName=${name}&objectName=${objectName}&downloadMode=`;
-				newLink.textContent = name;
-				newLink.target = "_blank";
-				newLink.classList.add("new-pdf-link");
-				file
-					.querySelector(".link-txt.downloadFile")
-					?.classList.add("pdf-link-hide");
-				file.prepend(newLink);
+		const observer = new MutationObserver((mutations) => {
+			for (const mutation of mutations) {
+				if (mutation.addedNodes.length > 0) {
+					const dialog = document.querySelector(".ui-dialog");
+					if (dialog) {
+						const buttons = Array.from(dialog.querySelectorAll("button"));
+						const previewButton = buttons.find((btn) =>
+							btn.textContent?.includes("表示する"),
+						);
+						const downloadButton = buttons.find((btn) =>
+							btn.textContent?.includes("ダウンロード"),
+						);
+
+						if (previewButton && downloadButton) {
+							previewButton.click();
+						}
+					}
+				}
 			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
 		});
 	}
 
