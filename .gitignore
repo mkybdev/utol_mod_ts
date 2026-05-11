@@ -17,3 +17,6 @@ pnpm-debug.log*
 # Editor
 .vscode/
 .idea/
+
+# Converted
+UTOL Mod/
