@@ -10,7 +10,8 @@
 UTOL の非公式 Chrome 拡張機能です。
 さまざまなカスタマイズが可能です。
 
-（macOS ユーザのみ Safari 拡張機能としてインストールすることも可能です。）
+Safari 拡張機能としてインストールすることも可能です（Xcode 経由でのビルドが必要です）。
+Apple Developer アカウントがあれば iOS でも利用可能です。
 
 ## 機能
 
@@ -80,7 +81,7 @@ npm run build # Generating "dist" directory: the extension file
 npm run convert:safari
 ```
 
-4. 生成された `UTOL Mod` > `UTOL Mod.xcodeproj` を Xcode で開き、適切なビルドターゲットを選択後ビルドします。
+4. 生成された `UTOL Mod` > `UTOL Mod.xcodeproj` を Xcode で開き、適切なビルドターゲットを選択後ビルドします。なお、iOS をターゲットとしたビルドには Apple Developer アカウントに紐づいた証明書の発行が必要です（詳細は割愛）。
 
 5. ビルド後、Safari の設定から UTOL Mod を有効化します（必要に応じて「デベロッパ > 未署名の機能拡張を許可」を有効にしてください）。
 
